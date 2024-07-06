@@ -6,3 +6,8 @@
 ### Equity Stocks
 
 - https://nsearchives.nseindia.com/content/equities/EQUITY_L.csv
+
+### Indexes
+
+- https://www.niftyindices.com/indices
+- https://www.nseindia.com/products-services/indices-broad-market

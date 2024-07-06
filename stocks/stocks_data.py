@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas as pd
 
 import re
+import nsepython as nse
 
 
 def camel_to_snake(text):
@@ -12,12 +13,15 @@ def camel_to_snake(text):
 
 
 def read_equity_data():
-    return pd.read_csv("stocks/data/base/EQUITY_L.csv")
+    return (
+        pd.read_csv("stocks/data/base/EQUITY_L.csv")
+        .sample(frac=1)
+        .reset_index(drop=True)
+    )
 
 
 def get_stocks_info():
     df_stocks = read_equity_data()
-    df_stocks = df_stocks.sample(frac=1).reset_index(drop=True)
 
     df_stocks["SYMBOL"] += ".NS"
 
@@ -52,7 +56,41 @@ def get_stocks_info():
     return df_stock_data, failed_download
 
 
+def get_stock_sector_data():
+    stocks_data = read_equity_data()
+    sector_data = []
+
+    for symbol in stocks_data["SYMBOL"]:
+        data = nse.nse_eq(symbol)
+
+        if "industryInfo" in data:
+            sector_data.append({"symbol": symbol, **data["industryInfo"]})
+            print(f"Download done for {symbol}")
+
+    return pd.DataFrame(sector_data)
+
+
+def download_historical_data():
+    df_stocks = read_equity_data()
+
+    df_stocks["SYMBOL"] += ".NS"
+
+    failed_download = []
+
+    for stock_code in df_stocks["SYMBOL"]:
+        try:
+            df_data = yf.Ticker(f"{stock_code}").history()
+
+            df_data.to_csv(f"stocks/data/history/{stock_code}.csv")
+        except Exception as e:
+            failed_download.append(stock_code)
+            print(f"Could not downoload for {stock_code} - {str(e)}")
+
+
 if __name__ == "__main__":
-    df, failed = get_stocks_info()
-    print(failed)
-    df.to_csv("stocks/data/base/all_stocks.csv")
+    # df, failed = get_stocks_info()
+    # print(failed)
+    # df.to_csv("stocks/data/base/all_stocks.csv")
+
+    sector_data = get_stock_sector_data()
+    sector_data.to_csv("stocks/data/base/all_stocks_sector.csv")

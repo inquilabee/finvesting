@@ -1,2 +1,5 @@
 .vscode/
-**/.ipynb_checkpoints/*
+.ipynb_checkpoints/*.ipynb
+.venv/
+__pycache__/
+stocks/notebooks/.ipynb_checkpoints/
