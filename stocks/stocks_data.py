@@ -1,8 +1,36 @@
 import re
+import shutil
+from pathlib import Path
 
 import nsepython as nse
 import pandas as pd
 import yfinance as yf
+
+HISTORICAL_DATA_DIR = Path("stocks/data/history")
+
+PRICE_HISTORY_DIR = HISTORICAL_DATA_DIR / "price"
+BALANCE_SHEET_HISTORY_DIR = HISTORICAL_DATA_DIR / "balance_sheet"
+DIVIDENDS_HISTORY_DIR = HISTORICAL_DATA_DIR / "dividends"
+FINANCIALS_HISTORY_DIR = HISTORICAL_DATA_DIR / "financials"
+CASHFLOW_HISTORY_DIR = HISTORICAL_DATA_DIR / "cashflow"
+
+
+def clear_dirs():
+    """
+    Clears the historical data directories.
+
+    Returns:
+        None
+    """
+    for dir in [
+        PRICE_HISTORY_DIR,
+        BALANCE_SHEET_HISTORY_DIR,
+        DIVIDENDS_HISTORY_DIR,
+        FINANCIALS_HISTORY_DIR,
+        CASHFLOW_HISTORY_DIR,
+    ]:
+        shutil.rmtree(dir)
+
 
 reorganized_columns = {
     "Identification and Listing Information": [
@@ -59,6 +87,7 @@ reorganized_columns = {
         "last_dividend_date",
         "last_split_factor",
         "last_split_date",
+        "payout_ratio",
     ],
     "Financial Metrics": [
         "paid_up_value",
@@ -86,6 +115,7 @@ reorganized_columns = {
         "earnings_quarterly_growth",
         "net_income_to_common",
         "trailing_eps",
+        "forward_eps",
     ],
     "Profitability Ratios": [
         "trailing_pe",
@@ -102,6 +132,8 @@ reorganized_columns = {
         "market_cap_rank",
     ],
 }
+
+allowed_columns = sum(list(reorganized_columns.values()), [])
 
 
 class MissingDataError(Exception):
@@ -140,7 +172,9 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
     base_symbols = set(df_stocks_nse_base["symbol"])
 
     # trunk-ignore(bandit/B101)
-    assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
+    assert (
+        set(df_stocks_sector["symbol"]) == base_symbols
+    ), f"""
         Symbols do not match.
         Missing symbols: { base_symbols - set(df_stocks_sector["symbol"])}
         """
@@ -166,7 +200,9 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
     )
 
     # trunk-ignore(bandit/B101)
-    assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
+    assert (
+        set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
+    ), f"""
         Symbols do not match. 
         Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """
@@ -179,10 +215,10 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
         .assign(
             industry_key=lambda df: df["industry_key"].fillna("other_industry"),
             sector_key=lambda df: df["sector_key"].fillna("other_sector"),
-            market_cap=lambda df: df["market_cap"] / 10 * 7,
+            market_cap=lambda df: df["market_cap"] / 10**7,
             market_cap_rank=lambda df: df["market_cap"].rank(ascending=False),
         )
-        .loc[:, sum(list(reorganized_columns.values()), [])]
+        .loc[:, allowed_columns]
     )
 
     return df_stock_data, failed_download
@@ -191,6 +227,8 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
 def get_stock_sector_data():
     stocks_data = read_equity_data()
     sector_data = []
+
+    # TODO: Use multithreading to speed up
 
     for symbol in stocks_data["SYMBOL"]:
         data = nse.nse_eq(symbol)
@@ -205,24 +243,29 @@ def get_stock_sector_data():
 def download_historical_data():
     df_stocks = read_equity_data()
 
-    df_stocks["SYMBOL"] += ".NS"
-
     failed_download = []
 
-    for stock_code in df_stocks["SYMBOL"]:
-        try:
-            df_data = yf.Ticker(f"{stock_code}").history()
+    for stock_code in df_stocks["symbol"]:
+        ticker = yf.Ticker(f"{stock_code}.NS")
+        file_name = f"{stock_code}.csv"
 
-            df_data.to_csv(f"stocks/data/history/{stock_code}.csv")
+        try:
+            ticker.history().to_csv(PRICE_HISTORY_DIR / file_name)
+            ticker.dividends.to_csv(DIVIDENDS_HISTORY_DIR / file_name)
+            ticker.cash_flow.to_csv(CASHFLOW_HISTORY_DIR / file_name)
+            ticker.financials.to_csv(FINANCIALS_HISTORY_DIR / file_name)
+            ticker.balance_sheet.to_csv(BALANCE_SHEET_HISTORY_DIR / file_name)
+
         except Exception as e:
             failed_download.append(stock_code)
             print(f"Could not downoload for {stock_code} - {str(e)}")
 
 
 if __name__ == "__main__":
-    df, failed = get_stocks_info()
-    print(failed)
-    df.to_csv("stocks/data/base/all_stocks.csv")
+    # df, failed = get_stocks_info()
+    # print(failed)
+    # df.to_csv("stocks/data/base/all_stocks.csv")
+    download_historical_data()
 
     # sector_data = get_stock_sector_data()
     # sector_data.to_csv("stocks/data/base/all_stocks_sector.csv")
