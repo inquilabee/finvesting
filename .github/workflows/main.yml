@@ -28,6 +28,9 @@ jobs:
       - name: Download data
         run: python stocks/stocks_data.py
 
+      - name: Run Notebooks
+        run: find . -name "*.ipynb" -print0 | xargs -0 -I {} jupyter nbconvert --execute --to notebook --inplace "{}"
+
       - name: Configure Git
         run: |
           git config --global user.name "github-actions[bot]"
