@@ -1,6 +1,6 @@
-import yfinance as yf
 import investpy
 import pandas as pd
+import yfinance as yf
 
 
 def get_stock_sector_info(tickers):

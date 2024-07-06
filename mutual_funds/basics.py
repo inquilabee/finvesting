@@ -1,7 +1,7 @@
+import logging
+
 import mftool
 import pandas as pd
-
-import logging
 
 logging.basicConfig()
 

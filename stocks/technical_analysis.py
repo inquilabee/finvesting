@@ -1,6 +1,6 @@
-import yfinance as yf
-import matplotlib.pyplot as plt
 import investpy
+import matplotlib.pyplot as plt
+import yfinance as yf
 
 
 class StockData:
