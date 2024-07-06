@@ -302,3 +302,6 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all,jupyternotebooks,venv,linux
 
 .vscode/
+__pycache__/
+.ipynb_checkpoints/
+stocks/notebooks/.ipynb_checkpoints/

@@ -104,6 +104,10 @@ reorganized_columns = {
 }
 
 
+class MissingDataError(Exception):
+    pass
+
+
 def camel_to_snake(text):
     str1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", text.strip())
     str2 = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", str1).lower()
@@ -135,10 +139,10 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
 
     base_symbols = set(df_stocks_nse_base["symbol"])
 
+    # trunk-ignore(bandit/B101)
     assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
         Symbols do not match.
         Missing symbols: { base_symbols - set(df_stocks_sector["symbol"])}
-        Missing symbols: { set(df_stocks_sector["symbol"]) - base_symbols}
         """
 
     stock_info = []
@@ -146,22 +150,25 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
 
     for stock_code in base_symbols:
         try:
-            stock_info.append(yf.Ticker(f"{stock_code}.NS").info)
-            print(f"Download completed for {stock_code}")
-        except Exception:
-            failed_download.append(stock_code)
-            # print(f"Could not downoload for {stock_code} - {str(e)}")
+            stock_symbol_info = yf.Ticker(f"{stock_code}.NS").info
 
-    df_stock_info = (
-        pd.DataFrame(stock_info)
-        .rename(columns=lambda col: camel_to_snake(col))
-        .assign(symbol=lambda df: df["symbol"].str.rstrip(".NS"))
+            if "dayHigh" not in stock_symbol_info:
+                raise MissingDataError(f"Data seems to be missing for {stock_code}")
+
+            stock_info.append(stock_symbol_info | {"symbol": stock_code})
+            print(f"Download completed for {stock_code}")
+        except Exception as e:
+            failed_download.append(stock_code)
+            print(f"Could not downoload for {stock_code} - {str(e)}")
+
+    df_stock_info = pd.DataFrame(stock_info).rename(
+        columns=lambda col: camel_to_snake(col)
     )
 
-    assert set(df_stock_info["symbol"]) == base_symbols, f"""
+    # trunk-ignore(bandit/B101)
+    assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
         Symbols do not match. 
-        Missing symbols: { base_symbols - set(df_stock_info["symbol"])}
-        Missing symbols: { set(df_stock_info["symbol"]) -base_symbols}
+        Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """
 
     df_stock_data = (
@@ -175,7 +182,7 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
             market_cap=lambda df: df["market_cap"] / 10 * 7,
             market_cap_rank=lambda df: df["market_cap"].rank(ascending=False),
         )
-        .loc[:, sum([cols for cols in reorganized_columns.values()], [])]
+        .loc[:, sum(list(reorganized_columns.values()), [])]
     )
 
     return df_stock_data, failed_download
