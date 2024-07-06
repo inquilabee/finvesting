@@ -1,7 +1,6 @@
 import yfinance as yf
-import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
+import investpy
 
 
 class StockData:
@@ -9,7 +8,18 @@ class StockData:
         self.tickers = tickers
         self.start_date = start_date
         self.end_date = end_date
+        self.indices = self._get_indices()
         self.data = self._get_stock_data()
+        self.fundamentals = self._get_fundamental_data()
+        self.moving_averages = MovingAverages(self.data)
+        self.rsi = RSI(self.data)
+        self.macd = MACD(self.data)
+        self.bollinger_bands = BollingerBands(self.data)
+        self.volumne = VolumeAnalysis(self.data)
+        self.support_resistance = SupportResistance(self.data)
+        self.trend = TrendAnalysis(self.data)
+        self.fib_retracement = FibonacciRetracement(self.data)
+        self.plotter = StockPlotter(self.data)
 
     def _get_stock_data(self):
         stock_data = {}
@@ -22,6 +32,27 @@ class StockData:
                 auto_adjust=True,
             )
         return stock_data
+
+    def _get_fundamental_data(self):
+        fundamental_data = {}
+        for ticker in self.tickers:
+            ticker_info = yf.Ticker(ticker).info
+            fundamental_data[ticker] = ticker_info
+        return fundamental_data
+
+    def _get_indices(self):
+        return investpy.indices.get_indices(country="India")
+
+    def technical_analysis(self):
+        self.moving_averages.calculate_sma(50)
+        self.moving_averages.calculate_ema(50)
+        self.rsi.calculate_rsi()
+        self.macd.calculate_macd()
+        self.bollinger_bands.calculate_bollinger_bands()
+        self.volumne.calculate_volume_moving_average()
+        self.support_resistance.calculate_support_resistance()
+        self.trend.calculate_trend()
+        self.fib_retracement.calculate_fibonacci_retracement()
 
 
 class MovingAverages:
@@ -122,12 +153,54 @@ class FibonacciRetracement:
             max_price = df["Close"].max()
             min_price = df["Close"].min()
             diff = max_price - min_price
-            levels = [
-                max_price - diff * ratio for ratio in [0.236, 0.382, 0.5, 0.618, 0.786]
+            levels = {
+                "Fib_23.6%": max_price - diff * 0.236,
+                "Fib_38.2%": max_price - diff * 0.382,
+                "Fib_50%": max_price - diff * 0.5,
+                "Fib_61.8%": max_price - diff * 0.618,
+                "Fib_78.6%": max_price - diff * 0.786,
+            }
+            for level, value in levels.items():
+                df[level] = value
+
+            df["Support_Resistance"] = df.apply(
+                self.identify_support_resistance, axis=1, levels=levels
+            )
+
+    @staticmethod
+    def identify_support_resistance(row, levels):
+        for level, value in levels.items():
+            if abs(row["Close"] - value) / value < 0.01:  # within 1% of the level
+                if row["Close"] > value:
+                    return f"Resistance at {level}"
+                else:
+                    return f"Support at {level}"
+        return "No significant support or resistance"
+
+    def get_support_resistance_level(self):
+        for ticker, df in self.stock_data.items():
+            max_price = df["Close"].max()
+            min_price = df["Close"].min()
+            diff = max_price - min_price
+
+            levels = {
+                "Fib_23.6%": max_price - diff * 0.236,
+                "Fib_38.2%": max_price - diff * 0.382,
+                "Fib_50%": max_price - diff * 0.5,
+                "Fib_61.8%": max_price - diff * 0.618,
+                "Fib_78.6%": max_price - diff * 0.786,
+            }
+
+            supports = [
+                (level, value, (df["Close"] > value).mean() * 100)
+                for level, value in levels.items()
             ]
-            df["Fibonacci"] = (
-                np.nan
-            )  # Placeholder for actual Fibonacci level calculation logic
+            resistance = [
+                (level, value, (df["Close"] < value).mean() * 100)
+                for level, value in levels.items()
+            ]
+
+            return supports, resistance
 
 
 class BetaAnalysis:
@@ -330,71 +403,48 @@ class StockPlotter:
         plt.show()
 
 
-# Example usage:
-tickers = ["RELIANCE.NS", "TCS.NS"]
-start_date = "2020-01-01"
-end_date = "2023-01-01"
+if __name__ == "__main__":
+    # Example usage:
+    tickers = ["RELIANCE.NS", "TCS.NS"]
+    start_date = "2020-01-01"
+    end_date = "2023-01-01"
 
-# Initialize and fetch stock data
-stock_data = StockData(tickers, start_date, end_date).data
-market_data = yf.download("^NSEI", start=start_date, end=end_date)
-sector_data = {"Technology": yf.download("^CNXIT", start=start_date, end=end_date)}
+    # Initialize and fetch stock data
+    stock_data = StockData(tickers, start_date, end_date)
+    market_data = yf.download("^NSEI", start=start_date, end=end_date)
+    sector_data = {"Technology": yf.download("^CNXIT", start=start_date, end=end_date)}
 
-# Initialize technical indicators
-ma = MovingAverages(stock_data)
-ma.calculate_sma(50)
-ma.calculate_ema(50)
+    stock_data.technical_analysis()
 
-rsi = RSI(stock_data)
-rsi.calculate_rsi()
+    candlestick_patterns = CandlestickPatterns(stock_data)
+    candlestick_patterns.calculate_candlestick_patterns()
 
-macd = MACD(stock_data)
-macd.calculate_macd()
+    fibonacci = FibonacciRetracement(stock_data)
+    fibonacci.calculate_fibonacci_retracement()
 
-bb = BollingerBands(stock_data)
-bb.calculate_bollinger_bands()
+    beta_analysis = BetaAnalysis(stock_data, market_data)
+    beta_analysis.calculate_beta()
 
-volume_analysis = VolumeAnalysis(stock_data)
-volume_analysis.calculate_volume_moving_average()
+    sector_analysis = SectorAnalysis(stock_data, sector_data)
+    sector_analysis.calculate_sector_performance()
 
-support_resistance = SupportResistance(stock_data)
-support_resistance.calculate_support_resistance()
+    # dividend_analysis = DividendAnalysis(stock_data)
+    # dividend_analysis.calculate_dividend_yield()
 
-trend_analysis = TrendAnalysis(stock_data)
-trend_analysis.calculate_trend()
+    # growth_analysis = GrowthAnalysis(stock_data)
+    # growth_analysis.calculate_growth_rates()
 
-candlestick_patterns = CandlestickPatterns(stock_data)
-candlestick_patterns.calculate_candlestick_patterns()
-
-fibonacci = FibonacciRetracement(stock_data)
-fibonacci.calculate_fibonacci_retracement()
-
-
-beta_analysis = BetaAnalysis(stock_data, market_data)
-beta_analysis.calculate_beta()
-
-
-sector_analysis = SectorAnalysis(stock_data, sector_data)
-sector_analysis.calculate_sector_performance()
-
-dividend_analysis = DividendAnalysis(stock_data)
-dividend_analysis.calculate_dividend_yield()
-
-growth_analysis = GrowthAnalysis(stock_data)
-growth_analysis.calculate_growth_rates()
-
-# Plot results
-plotter = StockPlotter(stock_data)
-plotter.plot_moving_averages("RELIANCE.NS")
-plotter.plot_rsi("RELIANCE.NS")
-plotter.plot_macd("RELIANCE.NS")
-plotter.plot_bollinger_bands("RELIANCE.NS")
-plotter.plot_volume("RELIANCE.NS")
-plotter.plot_support_resistance("RELIANCE.NS")
-plotter.plot_trend("RELIANCE.NS")
-plotter.plot_fibonacci_retracement("RELIANCE.NS")
-plotter.plot_candlestick_patterns("RELIANCE.NS")
-plotter.plot_beta("RELIANCE.NS", market_data)
-plotter.plot_sector_performance("Technology", sector_data)
-plotter.plot_dividend_yield("RELIANCE.NS")
-plotter.plot_growth_rates("RELIANCE.NS")
+    # Plot results
+    stock_data.plotter.plot_moving_averages("RELIANCE.NS")
+    stock_data.plotter.plot_rsi("RELIANCE.NS")
+    stock_data.plotter.plot_macd("RELIANCE.NS")
+    stock_data.plotter.plot_bollinger_bands("RELIANCE.NS")
+    stock_data.plotter.plot_volume("RELIANCE.NS")
+    stock_data.plotter.plot_support_resistance("RELIANCE.NS")
+    stock_data.plotter.plot_trend("RELIANCE.NS")
+    stock_data.plotter.plot_fibonacci_retracement("RELIANCE.NS")
+    stock_data.plotter.plot_candlestick_patterns("RELIANCE.NS")
+    stock_data.plotter.plot_beta("RELIANCE.NS", market_data)
+    stock_data.plotter.plot_sector_performance("Technology", sector_data)
+    # plotter.plot_dividend_yield("RELIANCE.NS")
+    # plotter.plot_growth_rates("RELIANCE.NS")

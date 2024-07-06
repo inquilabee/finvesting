@@ -31,7 +31,7 @@ def get_all_mfs(output_file: str, debug: bool = False, log_enabled: bool = False
             logger.info(f"could not fetch for {scheme}")
             pass
 
-    log_enabled and logger.info(f"Finalising data.")
+    log_enabled and logger.info("Finalising data.")
 
     scheme_df = (
         scheme_df.T.assign(
