@@ -172,9 +172,7 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
     base_symbols = set(df_stocks_nse_base["symbol"])
 
     # trunk-ignore(bandit/B101)
-    assert (
-        set(df_stocks_sector["symbol"]) == base_symbols
-    ), f"""
+    assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
         Symbols do not match.
         Missing symbols: { base_symbols - set(df_stocks_sector["symbol"])}
         """
@@ -200,9 +198,7 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
     )
 
     # trunk-ignore(bandit/B101)
-    assert (
-        set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
-    ), f"""
+    assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
         Symbols do not match. 
         Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """
