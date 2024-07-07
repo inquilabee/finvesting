@@ -13,6 +13,7 @@ BALANCE_SHEET_HISTORY_DIR = HISTORICAL_DATA_DIR / "balance_sheet"
 DIVIDENDS_HISTORY_DIR = HISTORICAL_DATA_DIR / "dividends"
 FINANCIALS_HISTORY_DIR = HISTORICAL_DATA_DIR / "financials"
 CASHFLOW_HISTORY_DIR = HISTORICAL_DATA_DIR / "cashflow"
+ALL_STOCKS_PATH = Path("stocks/data/base/all_stocks.csv")
 
 
 def clear_dirs():
@@ -29,7 +30,10 @@ def clear_dirs():
         FINANCIALS_HISTORY_DIR,
         CASHFLOW_HISTORY_DIR,
     ]:
-        shutil.rmtree(dir)
+        if dir.exists():
+            shutil.rmtree(dir)
+
+        dir.mkdir(exist_ok=True)
 
 
 reorganized_columns = {
@@ -172,7 +176,9 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
     base_symbols = set(df_stocks_nse_base["symbol"])
 
     # trunk-ignore(bandit/B101)
-    assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
+    assert (
+        set(df_stocks_sector["symbol"]) == base_symbols
+    ), f"""
         Symbols do not match.
         Missing symbols: { base_symbols - set(df_stocks_sector["symbol"])}
         """
@@ -198,7 +204,9 @@ def get_stocks_info() -> tuple[pd.DataFrame, list]:
     )
 
     # trunk-ignore(bandit/B101)
-    assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
+    assert (
+        set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
+    ), f"""
         Symbols do not match. 
         Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """
@@ -258,9 +266,13 @@ def download_historical_data():
 
 
 if __name__ == "__main__":
-    # df, failed = get_stocks_info()
-    # print(failed)
-    # df.to_csv("stocks/data/base/all_stocks.csv")
+    clear_dirs()
+
+    df, failed = get_stocks_info()
+    print(failed)
+
+    df.to_csv(ALL_STOCKS_PATH)
+
     download_historical_data()
 
     # sector_data = get_stock_sector_data()

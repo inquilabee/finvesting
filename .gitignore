@@ -305,3 +305,4 @@ pip-selfcheck.json
 __pycache__/
 .ipynb_checkpoints/
 stocks/notebooks/.ipynb_checkpoints/
+.trunk
