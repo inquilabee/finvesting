@@ -15,12 +15,7 @@ class PortfolioAPI:
         if df.empty:
             raise ValueError(f"No data available for {symbol} in the given date range.")
 
-        start_price = df.iloc[0]["Close"]
-        end_price = df.iloc[-1]["Close"]
-        num_years = (df.iloc[-1]["Date"] - df.iloc[0]["Date"]).days / 365.25
-        cagr = (end_price / start_price) ** (1 / num_years) - 1
-
-        return cagr
+        return self._calculate_cagr(df, "Close")
 
     def calculate_portfolio_cagr(self, symbols, from_date, to_date):
         cagr_values = {}
@@ -52,14 +47,13 @@ class PortfolioAPI:
             combined_df = combined_df.merge(df, on="Date", how="inner")
 
         combined_df["Total"] = combined_df[symbols].sum(axis=1)
-        start_price = combined_df.iloc[0]["Total"]
-        end_price = combined_df.iloc[-1]["Total"]
-        num_years = (
-            combined_df.iloc[-1]["Date"] - combined_df.iloc[0]["Date"]
-        ).days / 365.25
-        combined_cagr = (end_price / start_price) ** (1 / num_years) - 1
+        return self._calculate_cagr(combined_df, "Total")
 
-        return combined_cagr
+    def _calculate_cagr(self, df, column):
+        start_price = df.iloc[0][column]
+        end_price = df.iloc[-1][column]
+        num_years = (df.iloc[-1]["Date"] - df.iloc[0]["Date"]).days / 365.25
+        return (end_price / start_price) ** (1 / num_years) - 1
 
 
 def main():

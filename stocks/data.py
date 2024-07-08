@@ -251,15 +251,18 @@ class StocksDataAPI:
         file_name = f"{stock_code}.csv"
 
         try:
-            ticker.history(period="max").to_csv(self.PRICE_HISTORY_DIR / file_name)
-            ticker.dividends.to_csv(self.DIVIDENDS_HISTORY_DIR / file_name)
-            ticker.cash_flow.to_csv(self.CASHFLOW_HISTORY_DIR / file_name)
-            ticker.financials.to_csv(self.FINANCIALS_HISTORY_DIR / file_name)
-            ticker.balance_sheet.to_csv(self.BALANCE_SHEET_HISTORY_DIR / file_name)
-            return True
+            return self._extract_and_save_historical_data(ticker, file_name)
         except Exception as e:
             print(f"Could not download for {stock_code} - {str(e)}")
             return False
+
+    def _extract_and_save_historical_data(self, ticker, file_name):
+        ticker.history(period="max").to_csv(self.PRICE_HISTORY_DIR / file_name)
+        ticker.dividends.to_csv(self.DIVIDENDS_HISTORY_DIR / file_name)
+        ticker.cash_flow.to_csv(self.CASHFLOW_HISTORY_DIR / file_name)
+        ticker.financials.to_csv(self.FINANCIALS_HISTORY_DIR / file_name)
+        ticker.balance_sheet.to_csv(self.BALANCE_SHEET_HISTORY_DIR / file_name)
+        return True
 
     def download_historical_data(self):
         symbols = self.symbols
@@ -269,9 +272,9 @@ class StocksDataAPI:
                 executor.map(self._download_historical_data_for_stock, symbols)
             )
 
-        failed_download = [symbols[i] for i, result in enumerate(results) if not result]
-
-        if failed_download:
+        if failed_download := [
+            symbols[i] for i, result in enumerate(results) if not result
+        ]:
             print(f"Failed to download historical data for: {failed_download}")
 
     def _download_sector_data_for_stock(self, symbol):
