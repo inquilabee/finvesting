@@ -1,3 +1,4 @@
+import concurrent.futures
 import re
 import shutil
 from pathlib import Path
@@ -152,7 +153,11 @@ class StocksDataAPI:
             if dir.exists():
                 shutil.rmtree(dir)
 
-            dir.mkdir(exist_ok=True)
+            dir.mkdir(exist_ok=True, parents=True)
+
+    @property
+    def symbols(self):
+        return self.equity_data["symbol"].to_list()
 
     @property
     def equity_data(self):
@@ -173,47 +178,57 @@ class StocksDataAPI:
             .drop_duplicates("symbol")
         )
 
+    def _download_stock_info(self, stock_code):
+        try:
+            stock_symbol_info = yf.Ticker(f"{stock_code}.NS").info
+
+            if "dayHigh" not in stock_symbol_info:
+                raise MissingDataError(f"Data seems to be missing for {stock_code}")
+
+            return stock_symbol_info | {"symbol": stock_code}
+        except Exception as e:
+            print(f"Could not download for {stock_code} - {str(e)}")
+            return None
+
     def download_stocks_info(self) -> tuple[pd.DataFrame, list]:
         df_stocks_nse_base = self.equity_data
         df_stocks_sector = self.sector_data
 
         base_symbols = set(df_stocks_nse_base["symbol"])
 
+        # Data consistency check
         # trunk-ignore(bandit/B101)
         assert (
             set(df_stocks_sector["symbol"]) == base_symbols
         ), f"""
             Symbols do not match.
-            Missing symbols: { base_symbols - set(df_stocks_sector["symbol"])}
-            """
+            Missing symbols: {base_symbols - set(df_stocks_sector["symbol"])}
+        """
 
         stock_info = []
         failed_download = []
 
-        for stock_code in base_symbols:
-            try:
-                stock_symbol_info = yf.Ticker(f"{stock_code}.NS").info
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = list(executor.map(self._download_stock_info, base_symbols))
 
-                if "dayHigh" not in stock_symbol_info:
-                    raise MissingDataError(f"Data seems to be missing for {stock_code}")
-
-                stock_info.append(stock_symbol_info | {"symbol": stock_code})
-                print(f"Download completed for {stock_code}")
-            except Exception as e:
-                failed_download.append(stock_code)
-                print(f"Could not downoload for {stock_code} - {str(e)}")
+        for result in results:
+            if result is not None:
+                stock_info.append(result)
+            else:
+                failed_download.append(result["symbol"])
 
         df_stock_info = pd.DataFrame(stock_info).rename(
             columns=lambda col: camel_to_snake(col)
         )
 
+        # Data consistency check
         # trunk-ignore(bandit/B101)
         assert (
             set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
         ), f"""
             Symbols do not match. 
             Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
-            """
+        """
 
         df_stock_data = (
             df_stock_info.merge(df_stocks_nse_base, on="symbol")
@@ -231,42 +246,54 @@ class StocksDataAPI:
 
         return df_stock_data, failed_download
 
+    def _download_historical_data_for_stock(self, stock_code):
+        ticker = yf.Ticker(f"{stock_code}.NS")
+        file_name = f"{stock_code}.csv"
+
+        try:
+            ticker.history(period="max").to_csv(self.PRICE_HISTORY_DIR / file_name)
+            ticker.dividends.to_csv(self.DIVIDENDS_HISTORY_DIR / file_name)
+            ticker.cash_flow.to_csv(self.CASHFLOW_HISTORY_DIR / file_name)
+            ticker.financials.to_csv(self.FINANCIALS_HISTORY_DIR / file_name)
+            ticker.balance_sheet.to_csv(self.BALANCE_SHEET_HISTORY_DIR / file_name)
+            return True
+        except Exception as e:
+            print(f"Could not download for {stock_code} - {str(e)}")
+            return False
+
     def download_historical_data(self):
-        df_stocks = self.equity_data
+        symbols = self.symbols
 
-        failed_download = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = list(
+                executor.map(self._download_historical_data_for_stock, symbols)
+            )
 
-        for stock_code in df_stocks["symbol"]:
-            ticker = yf.Ticker(f"{stock_code}.NS")
-            file_name = f"{stock_code}.csv"
+        failed_download = [symbols[i] for i, result in enumerate(results) if not result]
 
-            try:
-                ticker.history(period="max").to_csv(self.PRICE_HISTORY_DIR / file_name)
-                ticker.dividends.to_csv(self.DIVIDENDS_HISTORY_DIR / file_name)
-                ticker.cash_flow.to_csv(self.CASHFLOW_HISTORY_DIR / file_name)
-                ticker.financials.to_csv(self.FINANCIALS_HISTORY_DIR / file_name)
-                ticker.balance_sheet.to_csv(self.BALANCE_SHEET_HISTORY_DIR / file_name)
+        if failed_download:
+            print(f"Failed to download historical data for: {failed_download}")
 
-            except Exception as e:
-                failed_download.append(stock_code)
-                print(f"Could not downoload for {stock_code} - {str(e)}")
+    def _download_sector_data_for_stock(self, symbol):
+        try:
+            data = nse.nse_eq(symbol)
+            if "industryInfo" in data:
+                return {"symbol": symbol, **data["industryInfo"]}
+        except Exception as e:
+            print(f"Could not download sector data for {symbol} - {str(e)}")
+        return None
 
     def download_stock_sector_data(self):
-        stocks_data = self.equity_data
+        symbols = self.symbols
         sector_data = []
 
-        # TODO: Use multithreading to speed up
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = list(executor.map(self._download_sector_data_for_stock, symbols))
 
-        for symbol in stocks_data["SYMBOL"]:
-            data = nse.nse_eq(symbol)
-
-            if "industryInfo" in data:
-                sector_data.append({"symbol": symbol, **data["industryInfo"]})
-                print(f"Download done for {symbol}")
-
+        sector_data = [result for result in results if result is not None]
         return pd.DataFrame(sector_data)
 
-    def dowload_data(
+    def download_data(
         self,
         stock_info: bool = True,
         historical_data: bool = True,
@@ -294,7 +321,9 @@ class StocksDataAPI:
         return pd.read_csv(self.SECTOR_DATA)
 
     def price_history(self, symbol: str) -> pd.DataFrame:
-        return pd.read_csv(self.PRICE_HISTORY_DIR / f"{symbol}.csv")
+        return pd.read_csv(
+            self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"]
+        )
 
     def balance_sheet_history(self, symbol: str) -> pd.DataFrame:
         return pd.read_csv(self.BALANCE_SHEET_HISTORY_DIR / f"{symbol}.csv")
@@ -312,4 +341,4 @@ class StocksDataAPI:
 if __name__ == "__main__":
     stock_api = StocksDataAPI()
 
-    stock_api.dowload_data()
+    stock_api.download_data()
