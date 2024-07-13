@@ -198,9 +198,7 @@ class StocksDataAPI:
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert (
-            set(df_stocks_sector["symbol"]) == base_symbols
-        ), f"""
+        assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
             Symbols do not match.
             Missing symbols: {base_symbols - set(df_stocks_sector["symbol"])}
         """
@@ -215,7 +213,7 @@ class StocksDataAPI:
             if result is not None:
                 stock_info.append(result)
             else:
-                failed_download.append(result["symbol"])
+                failed_download.append(result["symbol"])  # type: ignore
 
         df_stock_info = pd.DataFrame(stock_info).rename(
             columns=lambda col: camel_to_snake(col)
@@ -223,9 +221,7 @@ class StocksDataAPI:
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert (
-            set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
-        ), f"""
+        assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
             Symbols do not match. 
             Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """

@@ -17,7 +17,7 @@ class PortfolioAPI:
 
         return self._calculate_cagr(df, "Close")
 
-    def calculate_portfolio_cagr(self, symbols, from_date, to_date):
+    def calculate_individual_cagr(self, symbols, from_date, to_date):
         cagr_values = {}
         for symbol in symbols:
             try:
@@ -64,7 +64,9 @@ def main():
     from_date = datetime(2015, 1, 1).date()
     to_date = datetime(2020, 12, 31).date()
 
-    portfolio_cagr = portfolio_api.calculate_portfolio_cagr(symbols, from_date, to_date)
+    portfolio_cagr = portfolio_api.calculate_individual_cagr(
+        symbols, from_date, to_date
+    )
     combined_cagr = portfolio_api.calculate_combined_cagr(symbols, from_date, to_date)
 
     print("Individual CAGR:", portfolio_cagr)
