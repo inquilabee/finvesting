@@ -9,7 +9,6 @@ class PortfolioAPI:
 
     def calculate_cagr(self, symbol, from_date, to_date):
         df = self.data_api.price_history(symbol)
-        df["Date"] = df["Date"].dt.date
         df = df[(df["Date"] >= from_date) & (df["Date"] <= to_date)]
 
         if df.empty:
@@ -32,7 +31,6 @@ class PortfolioAPI:
         df_list = []
         for symbol in symbols:
             df = self.data_api.price_history(symbol)
-            df["Date"] = df["Date"].dt.date
             df = df[(df["Date"] >= from_date) & (df["Date"] <= to_date)]
             if not df.empty:
                 df_list.append(df[["Date", "Close"]].rename(columns={"Close": symbol}))

@@ -322,7 +322,7 @@ class StocksDataAPI:
     def price_history(self, symbol: str) -> pd.DataFrame:
         return pd.read_csv(
             self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"]
-        ).assign(Date=lambda df: pd.to_datetime(df["Date"]))
+        ).assign(Date=lambda df: pd.to_datetime(df["Date"].df.date))
 
     def balance_sheet_history(self, symbol: str) -> pd.DataFrame:
         return pd.read_csv(self.BALANCE_SHEET_HISTORY_DIR / f"{symbol}.csv")
