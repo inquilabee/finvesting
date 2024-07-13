@@ -156,7 +156,7 @@ class StocksDataAPI:
             dir.mkdir(exist_ok=True, parents=True)
 
     @property
-    def symbols(self):
+    def symbols(self) -> list[str]:
         return self.equity_data["symbol"].to_list()
 
     @property
@@ -322,7 +322,7 @@ class StocksDataAPI:
     def price_history(self, symbol: str) -> pd.DataFrame:
         return pd.read_csv(
             self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"]
-        )
+        ).assign(Date=lambda df: pd.to_datetime(df["Date"]))
 
     def balance_sheet_history(self, symbol: str) -> pd.DataFrame:
         return pd.read_csv(self.BALANCE_SHEET_HISTORY_DIR / f"{symbol}.csv")

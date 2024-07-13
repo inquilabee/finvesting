@@ -4,8 +4,8 @@ from stocks.data import StocksDataAPI
 
 
 class PortfolioAPI:
-    def __init__(self, data_api):
-        self.data_api = data_api
+    def __init__(self):
+        self.data_api = StocksDataAPI()
 
     def calculate_cagr(self, symbol, from_date, to_date):
         df = self.data_api.price_history(symbol)
@@ -50,15 +50,21 @@ class PortfolioAPI:
         return self._calculate_cagr(combined_df, "Total")
 
     def _calculate_cagr(self, df, column):
-        start_price = df.iloc[0][column]
-        end_price = df.iloc[-1][column]
-        num_years = (df.iloc[-1]["Date"] - df.iloc[0]["Date"]).days / 365.25
-        return (end_price / start_price) ** (1 / num_years) - 1
+        try:
+            start_price = df.iloc[0][column]
+            end_price = df.iloc[-1][column]
+            num_years = (df.iloc[-1]["Date"] - df.iloc[0]["Date"]).days / 365.25
+            return (end_price / start_price) ** (1 / num_years) - 1
+        except Exception as e:
+            print(
+                f"Something weird happened. {end_price=}, {start_price=}, {num_years=} Error={e}"
+            )
+
+        return None
 
 
 def main():
-    data_api = StocksDataAPI()
-    portfolio_api = PortfolioAPI(data_api)
+    portfolio_api = PortfolioAPI()
 
     symbols = ["RELIANCE", "TCS", "INFY"]
     from_date = datetime(2015, 1, 1).date()
