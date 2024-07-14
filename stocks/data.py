@@ -1,4 +1,5 @@
 import concurrent.futures
+import datetime
 import re
 import shutil
 from pathlib import Path
@@ -198,7 +199,9 @@ class StocksDataAPI:
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
+        assert (
+            set(df_stocks_sector["symbol"]) == base_symbols
+        ), f"""
             Symbols do not match.
             Missing symbols: {base_symbols - set(df_stocks_sector["symbol"])}
         """
@@ -221,7 +224,9 @@ class StocksDataAPI:
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
+        assert (
+            set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
+        ), f"""
             Symbols do not match. 
             Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """
@@ -320,9 +325,29 @@ class StocksDataAPI:
         return pd.read_csv(self.SECTOR_DATA)
 
     def price_history(self, symbol: str) -> pd.DataFrame:
-        return pd.read_csv(
-            self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"]
-        ).assign(Date=lambda df: pd.to_datetime(df["Date"].df.date))
+        return (
+            pd.read_csv(self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"])
+            .assign(Date=lambda df: pd.to_datetime(df["Date"]).dt.date)
+            .sort_values(by="Date", ascending=False)
+        )
+
+    def price_history_by_dates(
+        self, symbol: str, from_date: datetime.date, to_date: datetime.date
+    ):
+        assert (
+            from_date < to_date
+        ), f"Supplied dates are in wrong order, {from_date} > {to_date}"
+
+        df = self.price_history(symbol)
+
+        return df[(df["Date"] >= from_date) & (df["Date"] <= to_date)].sort_values(
+            by="Date", ascending=False
+        )
+
+    def price_at_date(self, symbol: str, date: datetime.date) -> float | None:
+        df = self.price_history(symbol)
+        filtered_df = df[df["Date"] <= date].sort_values(by="Date", ascending=False)
+        return None if filtered_df.empty else filtered_df.iloc[0]["Close"]
 
     def balance_sheet_history(self, symbol: str) -> pd.DataFrame:
         return pd.read_csv(self.BALANCE_SHEET_HISTORY_DIR / f"{symbol}.csv")
