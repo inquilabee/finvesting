@@ -1,11 +1,53 @@
 import concurrent.futures
 import itertools
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 import pandas as pd
 
 from stocks.data import StocksDataAPI
 from stocks.portfolio import PortfolioAPI
+
+
+@dataclass
+class LoosersPortfolio:
+    data: pd.DataFrame
+    col_past_perf: str
+    col_future_perf: str
+    col_xy_price: str
+    col_x_price: str
+    col_current_price: str
+
+    @property
+    def absolute_return_future(self):
+        start_price = self.data[self.col_x_price].sum()
+        end_price = self.data[self.col_current_price].sum()
+        return_pct = (end_price - start_price) / start_price
+        return return_pct * 100
+
+    @property
+    def aggregated_cagr_future(self):
+        return self.data[self.col_future_perf].mean()
+
+    @property
+    def absolute_return_past(self):
+        start_price = self.data[self.col_xy_price].sum()
+        end_price = self.data[self.col_x_price].sum()
+        return_pct = (end_price - start_price) / start_price
+        return return_pct * 100
+
+    @property
+    def aggregated_cagr_past(self):
+        return self.data[self.col_past_perf].mean()
+
+    @property
+    def analysis(self):
+        return {
+            "absolute_return_past": self.absolute_return_past,
+            "absolute_return_future": self.absolute_return_future,
+            "aggregated_cagr_past": self.aggregated_cagr_past,
+            "aggregated_cagr_future": self.aggregated_cagr_future,
+        }
 
 
 class LoosersStock:
@@ -19,15 +61,38 @@ class LoosersStock:
         self.current_date = datetime.now().date()
 
         # current (future) performance dates (x years)
-        self.future_start_date = self.current_date - timedelta(days=int(365 * x))
-        self.future_end_date = self.current_date
+        self.future_performance_dates = (
+            self.current_date - timedelta(days=int(365 * self.x)),
+            self.current_date,
+        )
+        self.future_start_date, self.future_end_date = self.future_performance_dates
 
         # past performance dates (y years)
-        self.past_end_date = self.future_start_date
-        self.past_start_date = self.past_end_date - timedelta(days=int(365 * y))
+        self.past_performance_dates = (
+            self.current_date - timedelta(days=int(365 * (self.x + self.y))),
+            self.current_date - timedelta(days=int(365 * self.x)),
+        )
+
+        self.past_start_date, self.past_end_date = self.past_performance_dates
+
+        print(f"Past performance dates {self.past_performance_dates}")
+        print(f"Future performance dates {self.future_performance_dates}")
 
         # Performance dataframe (based on x and y)
         self.past_performance = pd.DataFrame()
+
+        # column names
+        self.COL_PAST_PERF = f"past_performance_cagr_{self.y}"
+        self.COL_FUTURE_PERF = f"future_performance_cagr_{self.x}"
+        self.COL_XY_PRICE = f"price_{self.x + self.y}_years_ago"
+        self.COL_X_PRICE = f"price_{self.x}_years_ago"
+        self.COL_CURR_PRICE = "price_current"
+
+    @classmethod
+    def loosers_portfolio(cls, x, y, N=30) -> tuple["LoosersStock", "LoosersPortfolio"]:
+        finder = cls(x, y)
+        port_folio = finder.get_loosers_stocks(N)
+        return finder, port_folio
 
     def compute_past_future_returns(self) -> pd.DataFrame:
         """Compute past and future performance returns."""
@@ -41,20 +106,35 @@ class LoosersStock:
             }
             for future in concurrent.futures.as_completed(future_to_symbol):
                 symbol = future_to_symbol[future]
+
                 try:
                     result = future.result()
-                    data.append(result)
+                    stock_symbol, past_cagr, future_cagr = result
+                    history = self.stocks_data_api.price_history_by_dates(
+                        symbol, self.future_start_date, self.future_end_date
+                    )
+
+                    past_price = self.stocks_data_api.price_at_date(
+                        symbol, self.past_start_date
+                    )
+
+                    current_price = history["Close"].values[0]
+                    buy_price = history["Close"].values[-1]
+
+                    data.append(
+                        {
+                            "stock": stock_symbol,
+                            self.COL_XY_PRICE: past_price,
+                            self.COL_X_PRICE: buy_price,
+                            self.COL_CURR_PRICE: current_price,
+                            self.COL_PAST_PERF: past_cagr,
+                            self.COL_FUTURE_PERF: future_cagr,
+                        }
+                    )
                 except Exception as e:
                     print(f"Error calculating CAGR for {symbol}: {e}")
 
-        self.past_performance = pd.DataFrame(
-            data,
-            columns=[
-                "stock",
-                f"past_performance_{self.y}",
-                f"future_performance_{self.x}",
-            ],
-        )
+        self.past_performance = pd.DataFrame(data)
 
         return self.past_performance
 
@@ -67,11 +147,9 @@ class LoosersStock:
         )
         return [symbol, past_cagr, future_cagr]
 
-    def get_loosers_stocks(self, N: int) -> tuple[pd.DataFrame, float, float]:
-        """Use compute_past_future_returns to select N stocks that performed badly in y years and well in next years.
+    def get_loosers_stocks(self, N: int) -> LoosersPortfolio:
+        """Use compute_past_future_returns to select N stocks that performed badly in y years and well in next years."""
 
-        Calculate the aggregated CAGR of the chosen N stocks in the last x years.
-        """
         df = (
             self.compute_past_future_returns()
             if self.past_performance.empty
@@ -79,18 +157,26 @@ class LoosersStock:
         )
         df = df.dropna()
 
+        # trunk-ignore(bandit/B101)
+        assert (
+            len(df) > 0
+        ), """Loosers' Stock is an empty dataframe. Something went wrong horribly."""
+
         # Select N stocks which performed badly in the past y years and well in the future x years
         # TODO: query further: past < 0, future > 0 and past < future and so on.
         selected_stocks = df.sort_values(
-            by=[f"past_performance_{self.y}", f"future_performance_{self.x}"],
+            by=[self.COL_PAST_PERF, self.COL_FUTURE_PERF],
             ascending=[True, False],
         ).head(N)
 
-        # Calculate the aggregated CAGR for the chosen N stocks
-        aggregated_cagr_future = selected_stocks[f"future_performance_{self.x}"].mean()
-        aggregated_cagr_past = selected_stocks[f"past_performance_{self.y}"].mean()
-
-        return selected_stocks, aggregated_cagr_past, aggregated_cagr_future
+        return LoosersPortfolio(
+            data=selected_stocks,
+            col_past_perf=self.COL_PAST_PERF,
+            col_future_perf=self.COL_FUTURE_PERF,
+            col_xy_price=self.COL_XY_PRICE,
+            col_x_price=self.COL_X_PRICE,
+            col_current_price=self.COL_CURR_PRICE,
+        )
 
     @classmethod
     def find_optimal_x_y_N(
@@ -114,11 +200,15 @@ class LoosersStock:
             stock_finder.compute_past_future_returns()
             for N in N_values:
                 try:
-                    _, aggregated_cagr_past, aggregated_cagr_future = (
-                        stock_finder.get_loosers_stocks(N)
-                    )
+                    loosers_port = stock_finder.get_loosers_stocks(N)
                     results.append(
-                        (x, y, N, aggregated_cagr_past, aggregated_cagr_future)
+                        (
+                            x,
+                            y,
+                            N,
+                            loosers_port.aggregated_cagr_past,
+                            loosers_port.aggregated_cagr_future,
+                        )
                     )
                 except Exception as e:
                     print(f"Failed for x={x}, y={y}, N={N}: {e}")
@@ -153,7 +243,4 @@ if __name__ == "__main__":
     y = 3
 
     stock_finder = LoosersStock(x, y)
-
-    selected_stocks, aggregated_cagr_past, aggregated_cagr_future = (
-        stock_finder.get_loosers_stocks(N)
-    )
+    stock_finder.get_loosers_stocks(N)
