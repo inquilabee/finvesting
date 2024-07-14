@@ -22,16 +22,16 @@ class StockData:
         self.plotter = StockPlotter(self.data)
 
     def _get_stock_data(self):
-        stock_data = {}
-        for ticker in self.tickers:
-            stock_data[ticker] = yf.download(
+        return {
+            ticker: yf.download(
                 ticker,
                 start=self.start_date,
                 end=self.end_date,
                 actions=True,
                 auto_adjust=True,
             )
-        return stock_data
+            for ticker in self.tickers
+        }
 
     def _get_fundamental_data(self):
         fundamental_data = {}
@@ -163,9 +163,7 @@ class FibonacciRetracement:
             for level, value in levels.items():
                 df[level] = value
 
-            df["Support_Resistance"] = df.apply(
-                self.identify_support_resistance, axis=1, levels=levels
-            )
+            df["Support_Resistance"] = df.apply(self.identify_support_resistance, axis=1, levels=levels)
 
     @staticmethod
     def identify_support_resistance(row, levels):
@@ -191,14 +189,8 @@ class FibonacciRetracement:
                 "Fib_78.6%": max_price - diff * 0.786,
             }
 
-            supports = [
-                (level, value, (df["Close"] > value).mean() * 100)
-                for level, value in levels.items()
-            ]
-            resistance = [
-                (level, value, (df["Close"] < value).mean() * 100)
-                for level, value in levels.items()
-            ]
+            supports = [(level, value, (df["Close"] > value).mean() * 100) for level, value in levels.items()]
+            resistance = [(level, value, (df["Close"] < value).mean() * 100) for level, value in levels.items()]
 
             return supports, resistance
 
@@ -338,9 +330,7 @@ class StockPlotter:
         max_price = df["Close"].max()
         min_price = df["Close"].min()
         diff = max_price - min_price
-        levels = [
-            max_price - diff * ratio for ratio in [0.236, 0.382, 0.5, 0.618, 0.786]
-        ]
+        levels = [max_price - diff * ratio for ratio in [0.236, 0.382, 0.5, 0.618, 0.786]]
         plt.figure(figsize=(14, 7))
         plt.plot(df["Close"], label="Close Price")
         for level in levels:

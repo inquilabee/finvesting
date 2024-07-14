@@ -17,9 +17,7 @@ def dowload_and_save(scheme):
 
 
 def get_historical_nav(download_chunk: int = 10, sleep: int = 0):
-    all_schemes = pd.read_csv("data/schemes.csv").sort_values(
-        by=["start_nav"], ascending=False
-    )
+    all_schemes = pd.read_csv("data/schemes.csv").sort_values(by=["start_nav"], ascending=False)
 
     scheme_codes = all_schemes["scheme_code"].to_list()
 

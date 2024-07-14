@@ -53,9 +53,7 @@ class LoosersPortfolio:
     @property
     def _past_cagr(self) -> float | None:
         portfolio_api = PortfolioAPI()
-        return portfolio_api.calculate_combined_cagr(
-            self.data["stock"].values, self.past_dates[0], self.past_dates[1]
-        )
+        return portfolio_api.calculate_combined_cagr(self.data["stock"].values, self.past_dates[0], self.past_dates[1])
 
     @property
     def analysis(self):
@@ -95,9 +93,7 @@ class LoosersStock:
         self.past_start_date, self.past_end_date = self.past_performance_dates
 
         print(f"Past performance dates {self.past_start_date} to {self.past_end_date}")
-        print(
-            f"Future performance dates {self.future_start_date} to {self.future_end_date}"
-        )
+        print(f"Future performance dates {self.future_start_date} to {self.future_end_date}")
 
         # Performance dataframe (based on x and y)
         self.past_performance = pd.DataFrame()
@@ -130,10 +126,7 @@ class LoosersStock:
         data = []
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future_to_symbol = {
-                executor.submit(self._calculate_cagr_for_symbol, symbol): symbol
-                for symbol in symbols
-            }
+            future_to_symbol = {executor.submit(self._calculate_cagr_for_symbol, symbol): symbol for symbol in symbols}
             for future in concurrent.futures.as_completed(future_to_symbol):
                 symbol = future_to_symbol[future]
 
@@ -144,9 +137,7 @@ class LoosersStock:
                         symbol, self.future_start_date, self.future_end_date
                     )
 
-                    past_price = self.stocks_data_api.price_at_date(
-                        symbol, self.past_start_date
-                    )
+                    past_price = self.stocks_data_api.price_at_date(symbol, self.past_start_date)
 
                     current_price = history["Close"].values[0]
                     buy_price = history["Close"].values[-1]
@@ -168,29 +159,19 @@ class LoosersStock:
 
         return self.past_performance
 
-    def _calculate_cagr_for_symbol(self, symbol: str):
-        past_cagr = self.portfolio_api.calculate_cagr(
-            symbol, self.past_start_date, self.past_end_date
-        )
-        future_cagr = self.portfolio_api.calculate_cagr(
-            symbol, self.future_start_date, self.future_end_date
-        )
-        return [symbol, past_cagr, future_cagr]
+    def _calculate_cagr_for_symbol(self, symbol: str) -> tuple[str, float | None, float | None]:
+        past_cagr = self.portfolio_api.calculate_cagr(symbol, self.past_start_date, self.past_end_date)
+        future_cagr = self.portfolio_api.calculate_cagr(symbol, self.future_start_date, self.future_end_date)
+        return symbol, past_cagr, future_cagr
 
     def get_loosers_stocks(self, N: int) -> LoosersPortfolio:
         """Use compute_past_future_returns to select N stocks that performed badly in y years and well in next years."""
 
-        df = (
-            self.compute_past_future_returns()
-            if self.past_performance.empty
-            else self.past_performance
-        )
+        df = self.compute_past_future_returns() if self.past_performance.empty else self.past_performance
         df = df.dropna()
 
         # trunk-ignore(bandit/B101)
-        assert (
-            len(df) > 0
-        ), """Loosers' Stock is an empty dataframe. Something went wrong horribly."""
+        assert len(df) > 0, """Loosers' Stock is an empty dataframe. Something went wrong horribly."""
 
         # Select N stocks which performed badly in the past y years and well in the future x years
         # TODO: query further: past < 0, future > 0 and past < future and so on.
@@ -211,9 +192,7 @@ class LoosersStock:
         )
 
     @classmethod
-    def find_optimal_x_y_N(
-        cls, x_values: list, y_values: list, N_values: list
-    ) -> pd.DataFrame:
+    def find_optimal_x_y_N(cls, x_values: list, y_values: list, N_values: list) -> pd.DataFrame:
         """
         Find optimal values for x, y, and N by trying different combinations.
 
@@ -247,8 +226,7 @@ class LoosersStock:
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future_to_combination = {
-                executor.submit(evaluate_combination, x, y): (x, y)
-                for x, y in itertools.product(x_values, y_values)
+                executor.submit(evaluate_combination, x, y): (x, y) for x, y in itertools.product(x_values, y_values)
             }
             for future in concurrent.futures.as_completed(future_to_combination):
                 future.result()
@@ -275,4 +253,5 @@ if __name__ == "__main__":
     y = 3
 
     stock_finder = LoosersStock(x, y)
-    stock_finder.get_loosers_stocks(N)
+    port = stock_finder.get_loosers_stocks(N)
+    print(port.analysis)

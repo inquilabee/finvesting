@@ -199,7 +199,9 @@ class StocksDataAPI:
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
+        assert (
+            set(df_stocks_sector["symbol"]) == base_symbols
+        ), f"""
             Symbols do not match.
             Missing symbols: {base_symbols - set(df_stocks_sector["symbol"])}
         """
@@ -216,14 +218,14 @@ class StocksDataAPI:
             else:
                 failed_download.append(result["symbol"])  # type: ignore
 
-        df_stock_info = pd.DataFrame(stock_info).rename(
-            columns=lambda col: camel_to_snake(col)
-        )
+        df_stock_info = pd.DataFrame(stock_info).rename(columns=lambda col: camel_to_snake(col))
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
-            Symbols do not match. 
+        assert (
+            set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
+        ), f"""
+            Symbols do not match.
             Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """
 
@@ -265,13 +267,9 @@ class StocksDataAPI:
         symbols = self.symbols
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = list(
-                executor.map(self._download_historical_data_for_stock, symbols)
-            )
+            results = list(executor.map(self._download_historical_data_for_stock, symbols))
 
-        if failed_download := [
-            symbols[i] for i, result in enumerate(results) if not result
-        ]:
+        if failed_download := [symbols[i] for i, result in enumerate(results) if not result]:
             print(f"Failed to download historical data for: {failed_download}")
 
     def _download_sector_data_for_stock(self, symbol):
@@ -323,9 +321,7 @@ class StocksDataAPI:
     def price_history(self, symbol: str) -> pd.DataFrame:
         if symbol not in self._price_history_cache:
             self._price_history_cache[symbol] = (
-                pd.read_csv(
-                    self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"]
-                )
+                pd.read_csv(self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"])
                 .assign(Date=lambda df: pd.to_datetime(df["Date"]).dt.date)
                 .sort_values(by="Date", ascending=False)
             )
@@ -342,23 +338,15 @@ class StocksDataAPI:
 
         return None if history.empty else history["Date"].min()
 
-    def history_date_range(
-        self, symbol
-    ) -> tuple[datetime.date | None, datetime.date | None]:
+    def history_date_range(self, symbol) -> tuple[datetime.date | None, datetime.date | None]:
         return self.history_oldest_date(symbol), self.history_lastest_date(symbol)
 
-    def price_history_by_dates(
-        self, symbol: str, from_date: datetime.date, to_date: datetime.date
-    ):
-        assert (
-            from_date < to_date
-        ), f"Supplied dates are in wrong order, {from_date} > {to_date}"
+    def price_history_by_dates(self, symbol: str, from_date: datetime.date, to_date: datetime.date):
+        assert from_date < to_date, f"Supplied dates are in wrong order, {from_date} > {to_date}"
 
         df = self.price_history(symbol)
 
-        return df[(df["Date"] >= from_date) & (df["Date"] <= to_date)].sort_values(
-            by="Date", ascending=False
-        )
+        return df[(df["Date"] >= from_date) & (df["Date"] <= to_date)].sort_values(by="Date", ascending=False)
 
     def price_at_date(self, symbol: str, date: datetime.date) -> float | None:
         df = self.price_history(symbol)

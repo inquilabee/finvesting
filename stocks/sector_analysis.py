@@ -7,9 +7,7 @@ def get_stock_sector_info(tickers):
     stock_info = []
     for ticker in tickers:
         try:
-            search_result = investpy.search_quotes(
-                text=ticker, products=["stocks"], countries=["india"], n_results=1
-            )
+            search_result = investpy.search_quotes(text=ticker, products=["stocks"], countries=["india"], n_results=1)
             sector = search_result.retrieve_sector()
             stock_info.append({"Ticker": ticker, "Sector": sector})
         except Exception as e:

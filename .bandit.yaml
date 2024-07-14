@@ -7,4 +7,5 @@ exclude_dirs: ["tests/", "repository_directory/", "tox"]
 tests: []
 skips: [
     "B113", # request.get without a timeout
+    "B101", # assert is used
   ]

@@ -27,9 +27,8 @@ def get_all_mfs(output_file: str, debug: bool = False, log_enabled: bool = False
 
             if debug and idx == 10:
                 break
-        except:
+        except Exception:
             logger.info(f"could not fetch for {scheme}")
-            pass
 
     log_enabled and logger.info("Finalising data.")
 

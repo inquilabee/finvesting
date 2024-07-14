@@ -65,9 +65,7 @@ NIFTY_SMALLCAP_250 = Index(
     index_code="^CRSLNSC250",
 )
 
-NIFTY_50 = Index(
-    name="Nifty 50", file=INDEX_FILES_DIR / "ind_nifty50list.csv", index_code="^NSEI"
-)
+NIFTY_50 = Index(name="Nifty 50", file=INDEX_FILES_DIR / "ind_nifty50list.csv", index_code="^NSEI")
 
 NIFTY_SMALLCAP_50 = Index(
     name="Nifty Smallcap 50",

@@ -43,18 +43,12 @@ class SafeStocks:
         df_large_cap = self.df.query(f"market_cap_rank < {max_market_rank}")
 
         # Profitability Ratios: Positive and stable profit margins, operating margins, and gross margins
-        df_profitable = df_large_cap.query(
-            "profit_margins > 0 and operating_margins > 0 and gross_margins > 0"
-        )
+        df_profitable = df_large_cap.query("profit_margins > 0 and operating_margins > 0 and gross_margins > 0")
 
         # Return Ratios: High return on assets (ROA) and return on equity (ROE)
         # Top top_roa_threshold_pc% ROA and Top top_roe_threshold_pc% ROE
-        roa_threshold = df_profitable["return_on_assets"].quantile(
-            1 - top_roa_threshold_pc
-        )
-        roe_threshold = df_profitable["return_on_equity"].quantile(
-            1 - top_roe_threshold_pc
-        )
+        roa_threshold = df_profitable["return_on_assets"].quantile(1 - top_roa_threshold_pc)
+        roe_threshold = df_profitable["return_on_equity"].quantile(1 - top_roe_threshold_pc)
 
         df_high_return = df_profitable.query(
             f"return_on_assets > {roa_threshold} and return_on_equity > {roe_threshold}"
@@ -62,18 +56,12 @@ class SafeStocks:
 
         # Debt Levels: Low debt-to-equity ratio
         # Bottom bottom_debt_to_equity_ratio % debt-to-equity
-        debt_to_equity_threshold = df_high_return["debt_to_equity"].quantile(
-            bottom_debt_to_equity_ratio
-        )
+        debt_to_equity_threshold = df_high_return["debt_to_equity"].quantile(bottom_debt_to_equity_ratio)
 
-        df_low_debt = df_high_return.query(
-            f"debt_to_equity < {debt_to_equity_threshold}"
-        )
+        df_low_debt = df_high_return.query(f"debt_to_equity < {debt_to_equity_threshold}")
 
         # Dividend History: Regular and stable dividends
-        df_dividends = df_low_debt.dropna(
-            subset=["ex_dividend_date", "last_dividend_value"]
-        )
+        df_dividends = df_low_debt.dropna(subset=["ex_dividend_date", "last_dividend_value"])
 
         # Final filtered dataframe
         df_filtered = df_dividends
@@ -135,13 +123,12 @@ class SafeStocks:
 
         # Total Cash and Cash Per Share: High values relative to total debt
 
-        cash_to_debt_threshold = (
-            df_current_ratio["total_cash"] / df_current_ratio["total_debt"]
-        ).quantile(min_cash_to_debt_qn)
+        cash_to_debt_threshold = (df_current_ratio["total_cash"] / df_current_ratio["total_debt"]).quantile(
+            min_cash_to_debt_qn
+        )
 
         df_cash = df_current_ratio[
-            (df_current_ratio["total_cash"] / df_current_ratio["total_debt"])
-            > cash_to_debt_threshold
+            (df_current_ratio["total_cash"] / df_current_ratio["total_debt"]) > cash_to_debt_threshold
         ]
 
         # Free Cashflow and Operating Cashflow: Positive and growing
@@ -212,8 +199,7 @@ class SafeStocks:
             & (
                 df["current_price"]
                 <= df["fifty_two_week_low"]
-                + (df["fifty_two_week_high"] - df["fifty_two_week_low"])
-                * closeness_to_52_week_low
+                + (df["fifty_two_week_high"] - df["fifty_two_week_low"]) * closeness_to_52_week_low
             )
             & (df["52_week_change"] > min_52_week_change)
             & (df["beta"] < max_beta)
@@ -280,10 +266,7 @@ class SafeStocks:
 
         dividend_stocks = df[
             (df["last_dividend_value"] > 0)  # Check if there is a dividend value
-            & (
-                df["last_dividend_value"] / df["current_price"]
-                > reasonable_dividend_yield
-            )  # Dividend yield check
+            & (df["last_dividend_value"] / df["current_price"] > reasonable_dividend_yield)  # Dividend yield check
             &
             # (df['payoutRatio'] < sustainable_payout_ratio) &  # Payout ratio check
             (df["ex_dividend_date"].notnull())  # Check for ex-dividend date
