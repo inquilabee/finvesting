@@ -135,7 +135,7 @@ class StocksDataAPI:
     STOCK_INFO_COLUMNS = sum(list(reorganized_columns.values()), [])
 
     def __init__(self) -> None:
-        pass
+        self._price_history_cache = {}
 
     def _clear_dirs(self):
         """
@@ -199,9 +199,7 @@ class StocksDataAPI:
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert (
-            set(df_stocks_sector["symbol"]) == base_symbols
-        ), f"""
+        assert set(df_stocks_sector["symbol"]) == base_symbols, f"""
             Symbols do not match.
             Missing symbols: {base_symbols - set(df_stocks_sector["symbol"])}
         """
@@ -224,9 +222,7 @@ class StocksDataAPI:
 
         # Data consistency check
         # trunk-ignore(bandit/B101)
-        assert (
-            set(df_stock_info["symbol"]) | set(failed_download) == base_symbols
-        ), f"""
+        assert set(df_stock_info["symbol"]) | set(failed_download) == base_symbols, f"""
             Symbols do not match. 
             Missing symbols: {base_symbols - set(df_stock_info["symbol"])}
         """
@@ -325,11 +321,31 @@ class StocksDataAPI:
         return pd.read_csv(self.SECTOR_DATA)
 
     def price_history(self, symbol: str) -> pd.DataFrame:
-        return (
-            pd.read_csv(self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"])
-            .assign(Date=lambda df: pd.to_datetime(df["Date"]).dt.date)
-            .sort_values(by="Date", ascending=False)
-        )
+        if symbol not in self._price_history_cache:
+            self._price_history_cache[symbol] = (
+                pd.read_csv(
+                    self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"]
+                )
+                .assign(Date=lambda df: pd.to_datetime(df["Date"]).dt.date)
+                .sort_values(by="Date", ascending=False)
+            )
+
+        return self._price_history_cache[symbol]
+
+    def history_lastest_date(self, symbol) -> datetime.date | None:
+        history = self.price_history(symbol)
+
+        return None if history.empty else history["Date"].max()
+
+    def history_oldest_date(self, symbol) -> datetime.date | None:
+        history = self.price_history(symbol)
+
+        return None if history.empty else history["Date"].min()
+
+    def history_date_range(
+        self, symbol
+    ) -> tuple[datetime.date | None, datetime.date | None]:
+        return self.history_oldest_date(symbol), self.history_lastest_date(symbol)
 
     def price_history_by_dates(
         self, symbol: str, from_date: datetime.date, to_date: datetime.date

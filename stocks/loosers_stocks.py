@@ -1,7 +1,8 @@
 import concurrent.futures
+import datetime
 import itertools
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from functools import cached_property as cached
 
 import pandas as pd
 
@@ -12,6 +13,8 @@ from stocks.portfolio import PortfolioAPI
 @dataclass
 class LoosersPortfolio:
     data: pd.DataFrame
+    past_dates: tuple[datetime.date, datetime.date]
+    future_dates: tuple[datetime.date, datetime.date]
     col_past_perf: str
     col_future_perf: str
     col_xy_price: str
@@ -19,34 +22,50 @@ class LoosersPortfolio:
     col_current_price: str
 
     @property
-    def absolute_return_future(self):
+    def _absolute_return_future(self):
         start_price = self.data[self.col_x_price].sum()
         end_price = self.data[self.col_current_price].sum()
         return_pct = (end_price - start_price) / start_price
         return return_pct * 100
 
     @property
-    def aggregated_cagr_future(self):
+    def _mean_cagr_future(self):
         return self.data[self.col_future_perf].mean()
 
     @property
-    def absolute_return_past(self):
+    def _future_cagr(self) -> float | None:
+        portfolio_api = PortfolioAPI()
+        return portfolio_api.calculate_combined_cagr(
+            self.data["stock"].values, self.future_dates[0], self.future_dates[1]
+        )
+
+    @property
+    def _absolute_return_past(self):
         start_price = self.data[self.col_xy_price].sum()
         end_price = self.data[self.col_x_price].sum()
         return_pct = (end_price - start_price) / start_price
         return return_pct * 100
 
     @property
-    def aggregated_cagr_past(self):
+    def _mean_cagr_past(self):
         return self.data[self.col_past_perf].mean()
+
+    @property
+    def _past_cagr(self) -> float | None:
+        portfolio_api = PortfolioAPI()
+        return portfolio_api.calculate_combined_cagr(
+            self.data["stock"].values, self.past_dates[0], self.past_dates[1]
+        )
 
     @property
     def analysis(self):
         return {
-            "absolute_return_past": self.absolute_return_past,
-            "absolute_return_future": self.absolute_return_future,
-            "aggregated_cagr_past": self.aggregated_cagr_past,
-            "aggregated_cagr_future": self.aggregated_cagr_future,
+            "absolute_return_past": self._absolute_return_past,
+            "absolute_return_future": self._absolute_return_future,
+            "mean_cagr_past": self._mean_cagr_past,
+            "mean_cagr_future": self._mean_cagr_future,
+            "future_cagr": self._future_cagr,
+            "past_cagr": self._past_cagr,
         }
 
 
@@ -58,25 +77,27 @@ class LoosersStock:
         self.portfolio_api = PortfolioAPI()
         self.stocks_data_api = StocksDataAPI()
 
-        self.current_date = datetime.now().date()
+        self.current_date = datetime.datetime.now().date()
 
         # current (future) performance dates (x years)
         self.future_performance_dates = (
-            self.current_date - timedelta(days=int(365 * self.x)),
+            self.current_date - datetime.timedelta(days=int(365 * self.x)),
             self.current_date,
         )
         self.future_start_date, self.future_end_date = self.future_performance_dates
 
         # past performance dates (y years)
         self.past_performance_dates = (
-            self.current_date - timedelta(days=int(365 * (self.x + self.y))),
-            self.current_date - timedelta(days=int(365 * self.x)),
+            self.current_date - datetime.timedelta(days=int(365 * (self.x + self.y))),
+            self.current_date - datetime.timedelta(days=int(365 * self.x)),
         )
 
         self.past_start_date, self.past_end_date = self.past_performance_dates
 
-        print(f"Past performance dates {self.past_performance_dates}")
-        print(f"Future performance dates {self.future_performance_dates}")
+        print(f"Past performance dates {self.past_start_date} to {self.past_end_date}")
+        print(
+            f"Future performance dates {self.future_start_date} to {self.future_end_date}"
+        )
 
         # Performance dataframe (based on x and y)
         self.past_performance = pd.DataFrame()
@@ -88,6 +109,15 @@ class LoosersStock:
         self.COL_X_PRICE = f"price_{self.x}_years_ago"
         self.COL_CURR_PRICE = "price_current"
 
+    @cached
+    def available_symbols(self) -> list[str]:
+        return [
+            symbol
+            for symbol in self.stocks_data_api.symbols
+            if self.stocks_data_api.history_oldest_date(symbol)
+            and self.stocks_data_api.history_oldest_date(symbol) <= self.past_end_date  # type: ignore
+        ]
+
     @classmethod
     def loosers_portfolio(cls, x, y, N=30) -> tuple["LoosersStock", "LoosersPortfolio"]:
         finder = cls(x, y)
@@ -96,7 +126,7 @@ class LoosersStock:
 
     def compute_past_future_returns(self) -> pd.DataFrame:
         """Compute past and future performance returns."""
-        symbols = self.stocks_data_api.symbols
+        symbols = self.available_symbols
         data = []
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -171,6 +201,8 @@ class LoosersStock:
 
         return LoosersPortfolio(
             data=selected_stocks,
+            past_dates=self.past_performance_dates,
+            future_dates=self.future_performance_dates,
             col_past_perf=self.COL_PAST_PERF,
             col_future_perf=self.COL_FUTURE_PERF,
             col_xy_price=self.COL_XY_PRICE,
@@ -206,8 +238,8 @@ class LoosersStock:
                             x,
                             y,
                             N,
-                            loosers_port.aggregated_cagr_past,
-                            loosers_port.aggregated_cagr_future,
+                            loosers_port._mean_cagr_past,
+                            loosers_port._mean_cagr_future,
                         )
                     )
                 except Exception as e:
