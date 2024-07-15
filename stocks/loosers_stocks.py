@@ -238,16 +238,14 @@ class LoosersStock:
 
 
 def main():
-    x_values = [1, 2, 3]
-    y_values = [1, 2, 3]
-    N_values = list(range(1, 10))
+    x_values = list(range(1, 5))
+    y_values = list(range(1, 5))
+    N_values = list(range(25, 50, 3))
 
     df = LoosersStock.find_optimal_x_y_N(x_values, y_values, N_values)
     df.to_csv("optimization_results.csv", index=False)
     print("Optimization results saved to 'optimization_results.csv'.")
 
-
-if __name__ == "__main__":
     N = 30
     x = 2
     y = 3
@@ -255,3 +253,7 @@ if __name__ == "__main__":
     stock_finder = LoosersStock(x, y)
     port = stock_finder.get_loosers_stocks(N)
     print(port.analysis)
+
+
+if __name__ == "__main__":
+    main()
