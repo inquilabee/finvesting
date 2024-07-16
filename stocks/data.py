@@ -314,6 +314,10 @@ class StocksDataAPI:
     def stock_info(self) -> pd.DataFrame:
         return pd.read_csv(self.ALL_STOCKS_PATH)
 
+    def stock_info_by_symbol(self, symbol: str) -> dict:
+        info_df = self.stock_info
+        return info_df[info_df["symbol"] == symbol].to_dict(orient="dict")
+
     @property
     def stock_sectors(self) -> pd.DataFrame:
         return pd.read_csv(self.SECTOR_DATA)
