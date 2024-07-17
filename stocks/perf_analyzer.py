@@ -4,6 +4,7 @@ import itertools
 from dataclasses import dataclass
 from functools import cached_property as cached
 
+import numpy as np
 import pandas as pd
 
 from stocks.data import StocksDataAPI
@@ -177,42 +178,20 @@ class StockPortolioAnalyzer:
         future_cagr = self.portfolio_api.calculate_cagr(symbol, self.future_start_date, self.future_end_date)
         return symbol, past_cagr, future_cagr
 
-    def get_loosers_portfolio(self, N: int) -> StockPortfolio:
-        """select N stocks that performed badly in y years and well in next x years."""
-
-        return self._filter_stocks(
-            empty_message="""Loosers' Stock is an empty dataframe. Something went wrong horribly.""",
-            past_perf_order_ascending=True,
-            N=N,
-        )
-
-    def get_winners_portfolio(self, N: int) -> StockPortfolio:
-        """select N stocks that performed well in y years and well in next x years."""
-
-        return self._filter_stocks(
-            empty_message="""Winners' Stock is an empty dataframe. Something went wrong horribly.""",
-            past_perf_order_ascending=False,
-            N=N,
-        )
-
-    def get_penny_portfolio(self, N: int) -> StockPortfolio:
-        """select N stocks filter by min and max price."""
-
-        return self._filter_stocks(
-            empty_message="""Penny Stock is an empty dataframe. Something went wrong horribly.""",
-            past_perf_order_ascending=False,
-            N=N,
-        )
-
-    def _filter_stocks(self, empty_message: str, past_perf_order_ascending: bool, N: int):
+    def _filter_stocks(
+        self, message_on_empty_data: str, past_perf_order_ascending: bool, future_perf_order_ascending: bool, N: int
+    ):
         df = self.compute_past_future_returns() if self.past_performance.empty else self.past_performance
         df = df.dropna()
 
         # trunk-ignore(bandit/B101)
-        assert len(df) > 0, empty_message
+        assert len(df) > 0, message_on_empty_data
 
         selected_stocks = (
-            df.sort_values(by=[self.COL_PAST_PERF, self.COL_FUTURE_PERF], ascending=[past_perf_order_ascending, False])
+            df.sort_values(
+                by=[self.COL_PAST_PERF, self.COL_FUTURE_PERF],
+                ascending=[past_perf_order_ascending, future_perf_order_ascending],
+            )
             .head(N)
             .reset_index(drop=True)
         )
@@ -226,6 +205,38 @@ class StockPortolioAnalyzer:
             col_xy_price=self.COL_XY_PRICE,
             col_x_price=self.COL_X_PRICE,
             col_current_price=self.COL_CURR_PRICE,
+        )
+
+    ### Methods to get different types of stock portfolios
+
+    def get_loosers_portfolio(self, N: int) -> StockPortfolio:
+        """select N stocks that performed badly in y years and well in next x years."""
+
+        return self._filter_stocks(
+            message_on_empty_data="""Loosers' Stock is an empty dataframe. Something went wrong horribly.""",
+            past_perf_order_ascending=True,
+            future_perf_order_ascending=False,
+            N=N,
+        )
+
+    def get_winners_portfolio(self, N: int) -> StockPortfolio:
+        """select N stocks that performed well in y years and well in next x years."""
+
+        return self._filter_stocks(
+            message_on_empty_data="""Winners' Stock is an empty dataframe. Something went wrong horribly.""",
+            past_perf_order_ascending=False,
+            future_perf_order_ascending=False,
+            N=N,
+        )
+
+    def get_penny_portfolio(self, N: int) -> StockPortfolio:
+        """select N stocks filter by min and max price."""
+
+        return self._filter_stocks(
+            message_on_empty_data="""Penny Stock is an empty dataframe. Something went wrong horribly.""",
+            past_perf_order_ascending=False,
+            future_perf_order_ascending=False,
+            N=N,
         )
 
     @classmethod
@@ -263,32 +274,51 @@ class StockPortolioAnalyzer:
         """
         results = []
 
-        def evaluate_combination(x, y):
-            stock_finder = cls(x, y)
-            stock_finder.compute_past_future_returns()
-            for N in N_values:
-                try:
-                    loosers_port = stock_finder.get_loosers_portfolio(N)
-                    results.append(
-                        (
-                            x,
-                            y,
-                            N,
-                            loosers_port._mean_cagr_past,
-                            loosers_port._mean_cagr_future,
-                        )
-                    )
-                except Exception as e:
-                    print(f"Failed for x={x}, y={y}, N={N}: {e}")
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
             future_to_combination = {
-                executor.submit(evaluate_combination, x, y): (x, y) for x, y in itertools.product(x_values, y_values)
+                executor.submit(cls._evaluate_combination, x, y, N_values, cls): (x, y)
+                for x, y in itertools.product(x_values, y_values)
             }
+
             for future in concurrent.futures.as_completed(future_to_combination):
-                future.result()
+                result_x_y = future.result()
+                results.extend(result_x_y)
 
         return pd.DataFrame(
             results,
-            columns=["x", "y", "N", "aggregated_cagr_past", "aggregated_cagr_future"],
-        ).sort_values(by="aggregated_cagr_future", ascending=False)
+        ).sort_values("future_cagr", ascending=False)
+
+    @staticmethod
+    def _evaluate_combination(
+        x,
+        y,
+        N_values,
+        cls,
+    ):
+        stock_finder = cls(x, y)
+        stock_finder.compute_past_future_returns()
+        local_results = []
+
+        for N in N_values:
+            try:
+                loosers_port = stock_finder.get_loosers_portfolio(N)
+                local_results.append(
+                    {
+                        "x": x,
+                        "y": y,
+                        "N": N,
+                    }
+                    | list(loosers_port.analysis.to_dict().values())[0]
+                )
+            except Exception as e:
+                print(f"Failed for x={x}, y={y}, N={N}: {e}")
+
+        return local_results
+
+
+def main():
+    x_values = list(np.arange(0.5, 6, 0.5))
+    y_values = list(np.arange(0.5, 6, 0.5))
+    N_values = list(np.arange(10, 55, 5))
+
+    return StockPortolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values)

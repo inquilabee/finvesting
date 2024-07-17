@@ -134,8 +134,7 @@ class StocksDataAPI:
 
     STOCK_INFO_COLUMNS = sum(list(reorganized_columns.values()), [])
 
-    def __init__(self) -> None:
-        self._price_history_cache = {}
+    _price_history_cache = {}
 
     def _clear_dirs(self):
         """
@@ -329,15 +328,16 @@ class StocksDataAPI:
     def missing_price_history(self) -> list[str]:
         return [symbol for symbol in self.symbols if not self.is_price_history_available(symbol)]
 
-    def price_history(self, symbol: str) -> pd.DataFrame:
-        if symbol not in self._price_history_cache:
-            self._price_history_cache[symbol] = (
-                pd.read_csv(self.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"])
+    @classmethod
+    def price_history(cls, symbol: str) -> pd.DataFrame:
+        if symbol not in cls._price_history_cache:
+            cls._price_history_cache[symbol] = (
+                pd.read_csv(cls.PRICE_HISTORY_DIR / f"{symbol}.csv", parse_dates=["Date"])
                 .assign(Date=lambda df: pd.to_datetime(df["Date"]).dt.date)
                 .sort_values(by="Date", ascending=False)
             )
 
-        return self._price_history_cache[symbol]
+        return cls._price_history_cache[symbol]
 
     def history_lastest_date(self, symbol) -> datetime.date | None:
         history = self.price_history(symbol)
