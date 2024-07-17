@@ -1,13 +1,16 @@
 import pandas as pd
 
+from stocks.data import StocksDataAPI
+
 
 class SafeStocks:
-    def __init__(self, stock_path) -> None:
-        self.stock_path = stock_path
+    def __init__(self):
+        self.data_api = StocksDataAPI()
+        self.stock_info = self.data_api.stock_info
 
     @property
     def df(self) -> pd.DataFrame:
-        return pd.read_csv(self.stock_path)
+        return self.stock_info
 
     def established_profitable_companies(
         self,
@@ -26,7 +29,9 @@ class SafeStocks:
         *   **Debt Levels**: Low debt-to-equity ratio.
         *   **Dividend History**: Regular and stable dividends.
 
-        **Reasoning:** Companies with strong liquidity ratios and ample cash reserves are better equipped to handle economic downturns and unforeseen expenses. Positive and growing free cash flow indicates that the company generates more cash than it spends, which can be used for reinvestment, paying dividends, or reducing debt.
+        **Reasoning:** Companies with strong liquidity ratios and ample cash reserves are better equipped to handle
+        economic downturns and unforeseen expenses. Positive and growing free cash flow indicates that the company
+        generates more cash than it spends, which can be used for reinvestment, paying dividends, or reducing debt.
 
         Args:
             df (_type_): _description_
@@ -38,50 +43,54 @@ class SafeStocks:
         Returns:
             pd.DataFrame: Recommnded stocks
         """
-        # Market Capitalization: Preferably large-cap stocks (manual segmentation needed)
 
-        df_large_cap = self.df.query(f"market_cap_rank < {max_market_rank}")
-
-        # Profitability Ratios: Positive and stable profit margins, operating margins, and gross margins
-        df_profitable = df_large_cap.query("profit_margins > 0 and operating_margins > 0 and gross_margins > 0")
-
-        # Return Ratios: High return on assets (ROA) and return on equity (ROE)
-        # Top top_roa_threshold_pc% ROA and Top top_roe_threshold_pc% ROE
-        roa_threshold = df_profitable["return_on_assets"].quantile(1 - top_roa_threshold_pc)
-        roe_threshold = df_profitable["return_on_equity"].quantile(1 - top_roe_threshold_pc)
-
-        df_high_return = df_profitable.query(
-            f"return_on_assets > {roa_threshold} and return_on_equity > {roe_threshold}"
-        )
-
-        # Debt Levels: Low debt-to-equity ratio
-        # Bottom bottom_debt_to_equity_ratio % debt-to-equity
-        debt_to_equity_threshold = df_high_return["debt_to_equity"].quantile(bottom_debt_to_equity_ratio)
-
-        df_low_debt = df_high_return.query(f"debt_to_equity < {debt_to_equity_threshold}")
-
-        # Dividend History: Regular and stable dividends
-        df_dividends = df_low_debt.dropna(subset=["ex_dividend_date", "last_dividend_value"])
-
-        # Final filtered dataframe
-        df_filtered = df_dividends
-
-        return df_filtered[
-            [
-                "symbol",
-                "name_of_company",
-                "day_high",
-                "market_cap",
-                "profit_margins",
-                "operating_margins",
-                "gross_margins",
-                "return_on_assets",
-                "return_on_equity",
-                "debt_to_equity",
-                "ex_dividend_date",
-                "last_dividend_value",
-            ]
+        columns = [
+            "symbol",
+            "name_of_company",
+            "day_high",
+            "market_cap",
+            "profit_margins",
+            "operating_margins",
+            "gross_margins",
+            "return_on_assets",
+            "return_on_equity",
+            "debt_to_equity",
+            "ex_dividend_date",
+            "last_dividend_value",
         ]
+
+        return (
+            self.df
+            # Market Capitalization: Preferably large-cap stocks (manual segmentation needed)
+            # Profitability Ratios: Positive and stable profit margins, operating margins, and gross margins
+            .pipe(
+                lambda df: df.query(
+                    f"market_cap_rank < {max_market_rank} and profit_margins > 0 and operating_margins > 0 and gross_margins > 0"
+                )
+            )
+            # Return Ratios: High return on assets (ROA) and return on equity (ROE)
+            # Top top_roa_threshold_pc% ROA and Top top_roe_threshold_pc% ROE
+            .pipe(
+                lambda df: df.assign(
+                    roa_threshold=df["return_on_assets"].quantile(1 - top_roa_threshold_pc),
+                    roe_threshold=df["return_on_equity"].quantile(1 - top_roe_threshold_pc),
+                )
+            )
+            .query("return_on_assets > roa_threshold and return_on_equity > roe_threshold")
+            .pipe(lambda df: df.drop(columns=["roa_threshold", "roe_threshold"]))
+            # Debt Levels: Low debt-to-equity ratio
+            # Bottom bottom_debt_to_equity_ratio % debt-to-equity
+            .pipe(
+                lambda df: df.assign(
+                    debt_to_equity_threshold=df["debt_to_equity"].quantile(bottom_debt_to_equity_ratio)
+                )
+            )
+            .query("debt_to_equity < debt_to_equity_threshold")
+            .drop(columns=["debt_to_equity_threshold"])
+            # Dividend History: Regular and stable dividends
+            .dropna(subset=["ex_dividend_date", "last_dividend_value"])
+            .loc[:, columns]
+        )
 
     def strong_financial_health_and_liquidity(
         self,
@@ -100,7 +109,9 @@ class SafeStocks:
         *   **Total Cash and Cash Per Share**: High values relative to total debt.
         *   **Free Cashflow and Operating Cashflow**: Positive and growing.
 
-        **Reasoning:** Companies with strong liquidity ratios and ample cash reserves are better equipped to handle economic downturns and unforeseen expenses. Positive and growing free cash flow indicates that the company generates more cash than it spends, which can be used for reinvestment, paying dividends, or reducing debt.
+        **Reasoning:** Companies with strong liquidity ratios and ample cash reserves are better equipped to handle
+        economic downturns and unforeseen expenses. Positive and growing free cash flow indicates that the company
+        generates more cash than it spends, which can be used for reinvestment, paying dividends, or reducing debt.
 
             Args:
                 df (_type_): _description_
@@ -113,52 +124,50 @@ class SafeStocks:
             Returns:
                 _type_: _description_
         """
-        # Filtering criteria for strong financial health and liquidity
 
-        # Quick Ratio: Greater than 1
-        df_quick_ratio = self.df.query(f"quick_ratio > {min_quick_ratio}")
-
-        # Current Ratio: Greater than 1
-        df_current_ratio = df_quick_ratio.query(f"current_ratio > {min_current_ratio}")
-
-        # Total Cash and Cash Per Share: High values relative to total debt
-
-        cash_to_debt_threshold = (df_current_ratio["total_cash"] / df_current_ratio["total_debt"]).quantile(
-            min_cash_to_debt_qn
-        )
-
-        df_cash = df_current_ratio[
-            (df_current_ratio["total_cash"] / df_current_ratio["total_debt"]) > cash_to_debt_threshold
+        columns = [
+            "symbol",
+            "name_of_company",
+            "day_high",
+            "quick_ratio",
+            "current_ratio",
+            "total_cash",
+            "total_cash_per_share",
+            "total_debt",
+            "free_cashflow",
+            "operating_cashflow",
+            "recommendation_key",
         ]
 
-        # Free Cashflow and Operating Cashflow: Positive and growing
-        df_cashflow = df_cash.query(
-            f"free_cashflow > {min_free_cashflow} and operating_cashflow > {min_operating_cashflow}"
+        df_final = (
+            # Filtering criteria for strong financial health and liquidity
+            self.df
+            # Quick Ratio: Greater than 1
+            .query(f"quick_ratio > {min_quick_ratio}")
+            # Current Ratio: Greater than 1
+            .query(f"current_ratio > {min_current_ratio}")
+            # Total Cash and Cash Per Share: High values relative to total debt
+            .pipe(
+                lambda df: df.assign(
+                    cash_to_debt_ratio=df["total_cash"] / df["total_debt"],
+                    cash_to_debt_threshold=(df["total_cash"] / df["total_debt"]).quantile(min_cash_to_debt_qn),
+                )
+            )
+            .query("cash_to_debt_ratio > cash_to_debt_threshold")
+            .drop(columns=["cash_to_debt_ratio", "cash_to_debt_threshold"])
+            # Free Cashflow and Operating Cashflow: Positive and growing
+            .query(f"free_cashflow > {min_free_cashflow} and operating_cashflow > {min_operating_cashflow}")
         )
 
         # Assuming 'previous_free_cashflow' and 'previous_operating_cashflow' columns exist for growth calculation
         # Uncomment the following lines if historical data is available for comparison
-        # df_cashflow_growth = df_cashflow[
-        #     (df_cashflow['free_cashflow'] > df_cashflow['previous_free_cashflow']) &
-        #     (df_cashflow['operating_cashflow'] > df_cashflow['previous_operating_cashflow'])
+        # df_cashflow_growth = df_final[
+        #     (df_final["free_cashflow"] > df_final["previous_free_cashflow"])
+        #     & (df_final["operating_cashflow"] > df_final["previous_operating_cashflow"])
         # ]
 
         # Display the filtered stocks
-        return df_cashflow[
-            [
-                "symbol",
-                "name_of_company",
-                "day_high",
-                "quick_ratio",
-                "current_ratio",
-                "total_cash",
-                "total_cash_per_share",
-                "total_debt",
-                "free_cashflow",
-                "operating_cashflow",
-                "recommendation_key",
-            ]
-        ].sort_values(by=["day_high"])
+        return df_final.loc[:, columns].sort_values(by=["day_high"])
 
     def defensive_stocks(
         self,
@@ -180,7 +189,9 @@ class SafeStocks:
         *   **Fifty-Two Week Low and High**: Stocks trading closer to their 52-week low may be undervalued.
         *   **Volatility**: Low historical volatility and a beta of less than 1.
 
-        **Reasoning:** Defensive stocks are typically less sensitive to economic cycles and tend to perform well in both good and bad economic times. Investing in these sectors can provide a buffer against market downturns. Low volatility stocks are less likely to experience drastic price swings, making them safer investments.
+        **Reasoning:** Defensive stocks are typically less sensitive to economic cycles and tend to perform well in both
+        good and bad economic times. Investing in these sectors can provide a buffer against market downturns.
+        Low volatility stocks are less likely to experience drastic price swings, making them safer investments.
 
             Args:
                 df (_type_): _description_
@@ -194,8 +205,8 @@ class SafeStocks:
         """
         df = self.df
 
-        return df[
-            (df["sector_key"].isin(defensive_sectors))
+        condition = (
+            df["sector_key"].isin(defensive_sectors)
             & (
                 df["current_price"]
                 <= df["fifty_two_week_low"]
@@ -203,7 +214,9 @@ class SafeStocks:
             )
             & (df["52_week_change"] > min_52_week_change)
             & (df["beta"] < max_beta)
-        ]
+        )
+
+        return df[condition]
 
     def filter_stocks_for_consistent_growth(
         self,
@@ -246,7 +259,9 @@ class SafeStocks:
         *   **Dividend History**: Long history of paying and increasing dividends.
         *   **Ex-Dividend Date and Last Dividend Date**: Regular dividend payments.
 
-        **Reasoning:** Dividend-paying stocks can provide a steady income stream, which can cushion against market volatility. Companies with a long history of dividend payments are often more financially stable. A sustainable payout ratio ensures that the company can continue to pay dividends without compromising its financial health.
+        **Reasoning:** Dividend-paying stocks can provide a steady income stream, which can cushion against market volatility.
+        Companies with a long history of dividend payments are often more financially stable. A sustainable payout ratio ensures
+        that the company can continue to pay dividends without compromising its financial health.
 
             Args:
                 df (_type_): _description_
@@ -273,15 +288,27 @@ class SafeStocks:
             & (df["last_dividend_date"].notnull())  # Check for last dividend date
         ]
 
-        # # Additional check for dividend history (optional, based on available data)
-        # dividend_history = dividend_stocks.groupby('symbol').apply(lambda x: (x['lastDividendDate'].diff().min() > pd.Timedelta(days=30))).reset_index()
-        # dividend_history.columns = ['symbol', 'LongDividendHistory']
-        # dividend_stocks = pd.merge(dividend_stocks, dividend_history, on='symbol')
+        # Additional check for dividend history (optional, based on available data)
+        # dividend_history = (
+        #     dividend_stocks.groupby("symbol")
+        #     .apply(lambda x: (x["lastDividendDate"].diff().min() > pd.Timedelta(days=30)))
+        #     .reset_index()
+        # )
+        # dividend_history.columns = ["symbol", "LongDividendHistory"]
+
+        # trunk-ignore(bandit/B101)
+        # assert dividend_history["LongDividendHistory"].all(), "Dividend history is too short"
+
+        # dividend_stocks = pd.merge(dividend_stocks, dividend_history, on="symbol")
 
         return dividend_stocks
 
 
 if __name__ == "__main__":
-    safe_stocks = SafeStocks(stock_path="stocks/data/base/all_stocks.csv")
+    safe_stocks = SafeStocks()
 
     print(safe_stocks.established_profitable_companies())
+    print(safe_stocks.strong_financial_health_and_liquidity())
+    print(safe_stocks.defensive_stocks())
+    print(safe_stocks.filter_stocks_for_consistent_growth())
+    print(safe_stocks.divident_paying_stocks())
