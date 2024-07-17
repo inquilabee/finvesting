@@ -322,6 +322,13 @@ class StocksDataAPI:
     def stock_sectors(self) -> pd.DataFrame:
         return pd.read_csv(self.SECTOR_DATA)
 
+    def is_price_history_available(self, symbol: str) -> bool:
+        return Path(self.PRICE_HISTORY_DIR / f"{symbol}.csv").exists()
+
+    @property
+    def missing_price_history(self) -> list[str]:
+        return [symbol for symbol in self.symbols if not self.is_price_history_available(symbol)]
+
     def price_history(self, symbol: str) -> pd.DataFrame:
         if symbol not in self._price_history_cache:
             self._price_history_cache[symbol] = (
@@ -346,7 +353,8 @@ class StocksDataAPI:
         return self.history_oldest_date(symbol), self.history_lastest_date(symbol)
 
     def price_history_by_dates(self, symbol: str, from_date: datetime.date, to_date: datetime.date):
-        assert from_date < to_date, f"Supplied dates are in wrong order, {from_date} > {to_date}"
+        # trunk-ignore(bandit/B101)
+        assert from_date <= to_date, f"Supplied dates are in wrong order, {from_date} > {to_date}"
 
         df = self.price_history(symbol)
 
@@ -356,6 +364,24 @@ class StocksDataAPI:
         df = self.price_history(symbol)
         filtered_df = df[df["Date"] <= date].sort_values(by="Date", ascending=False)
         return None if filtered_df.empty else filtered_df.iloc[0]["Close"]
+
+    def latest_price(self, symbol: str) -> float | None:
+        df = self.price_history(symbol)
+        return None if df.empty else df.iloc[0]["Close"]
+
+    def stocks_by_price(self, min_price: float = 0, max_price: float | None = None) -> list[str]:
+        min_price = min_price or self.min_price
+        max_price = max_price or self.max_price
+        filtered_stocks = self.stock_info.query("@min_price <= day_high <= @max_price")
+        return filtered_stocks["symbol"].to_list()
+
+    @property
+    def max_price(self) -> float:
+        return self.stock_info["day_high"].max()
+
+    @property
+    def min_price(self) -> float:
+        return self.stock_info["day_high"].min()
 
     def balance_sheet_history(self, symbol: str) -> pd.DataFrame:
         return pd.read_csv(self.BALANCE_SHEET_HISTORY_DIR / f"{symbol}.csv")

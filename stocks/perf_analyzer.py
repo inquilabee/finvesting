@@ -11,7 +11,7 @@ from stocks.portfolio import PortfolioAPI
 
 
 @dataclass
-class LoosersPortfolio:
+class StockPortfolio:
     data: pd.DataFrame
     past_dates: tuple[datetime.date, datetime.date]
     future_dates: tuple[datetime.date, datetime.date]
@@ -56,24 +56,32 @@ class LoosersPortfolio:
         return portfolio_api.calculate_combined_cagr(self.data["stock"].values, self.past_dates[0], self.past_dates[1])
 
     @property
-    def analysis(self):
-        return {
-            "absolute_return_past": self._absolute_return_past,
-            "absolute_return_future": self._absolute_return_future,
-            "mean_cagr_past": self._mean_cagr_past,
-            "mean_cagr_future": self._mean_cagr_future,
-            "future_cagr": self._future_cagr,
-            "past_cagr": self._past_cagr,
-        }
+    def analysis(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            {
+                "absolute_return_past": [self._absolute_return_past],
+                "absolute_return_future": [self._absolute_return_future],
+                "mean_cagr_past": [self._mean_cagr_past],
+                "mean_cagr_future": [self._mean_cagr_future],
+                "future_cagr": [self._future_cagr],
+                "past_cagr": [self._past_cagr],
+                "sum_past_xy_price": [self.data[self.col_xy_price].sum()],
+                "sum_past_x_price": [self.data[self.col_x_price].sum()],
+                "sum_current_price": [self.data[self.col_current_price].sum()],
+            },
+            index=["Portfolio Analysis"],
+        ).T
 
 
-class LoosersStock:
-    def __init__(self, x: float, y: float) -> None:
+class StockPortolioAnalyzer:
+    def __init__(self, x: float, y: float, min_price: float = 0, max_price: float = 10**7):
         self.x = x
         self.y = y
+        self.min_price = min_price
+        self.max_price = max_price
 
         self.portfolio_api = PortfolioAPI()
-        self.stocks_data_api = StocksDataAPI()
+        self.data_api = StocksDataAPI()
 
         self.current_date = datetime.datetime.now().date()
 
@@ -92,8 +100,14 @@ class LoosersStock:
 
         self.past_start_date, self.past_end_date = self.past_performance_dates
 
+        # trunk-ignore(bandit/B101)
+        assert (
+            self.past_start_date <= self.past_end_date <= self.future_start_date <= self.future_end_date
+        ), "Invalid date range"
+
         print(f"Past performance dates {self.past_start_date} to {self.past_end_date}")
         print(f"Future performance dates {self.future_start_date} to {self.future_end_date}")
+        print(f"Analyzing data of last {self.x + self.y} years")
 
         # Performance dataframe (based on x and y)
         self.past_performance = pd.DataFrame()
@@ -106,23 +120,24 @@ class LoosersStock:
         self.COL_CURR_PRICE = "price_current"
 
     @cached
-    def available_symbols(self) -> list[str]:
+    def valid_symbols(self) -> list[str]:
         return [
             symbol
-            for symbol in self.stocks_data_api.symbols
-            if self.stocks_data_api.history_oldest_date(symbol)
-            and self.stocks_data_api.history_oldest_date(symbol) <= self.past_end_date  # type: ignore
+            for symbol in self.data_api.symbols
+            if symbol not in self.data_api.missing_price_history
+            and (
+                self.data_api.history_oldest_date(symbol)
+                and self.data_api.history_oldest_date(symbol) <= self.past_start_date
+            )
+            and (
+                self.data_api.price_at_date(symbol, self.past_start_date)
+                and self.min_price <= self.data_api.price_at_date(symbol, self.past_start_date) <= self.max_price
+            )
         ]
-
-    @classmethod
-    def loosers_portfolio(cls, x, y, N=30) -> tuple["LoosersStock", "LoosersPortfolio"]:
-        finder = cls(x, y)
-        port_folio = finder.get_loosers_stocks(N)
-        return finder, port_folio
 
     def compute_past_future_returns(self) -> pd.DataFrame:
         """Compute past and future performance returns."""
-        symbols = self.available_symbols
+        symbols = self.valid_symbols
         data = []
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -133,11 +148,9 @@ class LoosersStock:
                 try:
                     result = future.result()
                     stock_symbol, past_cagr, future_cagr = result
-                    history = self.stocks_data_api.price_history_by_dates(
-                        symbol, self.future_start_date, self.future_end_date
-                    )
+                    history = self.data_api.price_history_by_dates(symbol, self.future_start_date, self.future_end_date)
 
-                    past_price = self.stocks_data_api.price_at_date(symbol, self.past_start_date)
+                    past_price = self.data_api.price_at_date(symbol, self.past_start_date)
 
                     current_price = history["Close"].values[0]
                     buy_price = history["Close"].values[-1]
@@ -164,23 +177,47 @@ class LoosersStock:
         future_cagr = self.portfolio_api.calculate_cagr(symbol, self.future_start_date, self.future_end_date)
         return symbol, past_cagr, future_cagr
 
-    def get_loosers_stocks(self, N: int) -> LoosersPortfolio:
-        """Use compute_past_future_returns to select N stocks that performed badly in y years and well in next years."""
+    def get_loosers_portfolio(self, N: int) -> StockPortfolio:
+        """select N stocks that performed badly in y years and well in next x years."""
 
+        return self._filter_stocks(
+            empty_message="""Loosers' Stock is an empty dataframe. Something went wrong horribly.""",
+            past_perf_order_ascending=True,
+            N=N,
+        )
+
+    def get_winners_portfolio(self, N: int) -> StockPortfolio:
+        """select N stocks that performed well in y years and well in next x years."""
+
+        return self._filter_stocks(
+            empty_message="""Winners' Stock is an empty dataframe. Something went wrong horribly.""",
+            past_perf_order_ascending=False,
+            N=N,
+        )
+
+    def get_penny_portfolio(self, N: int) -> StockPortfolio:
+        """select N stocks filter by min and max price."""
+
+        return self._filter_stocks(
+            empty_message="""Penny Stock is an empty dataframe. Something went wrong horribly.""",
+            past_perf_order_ascending=False,
+            N=N,
+        )
+
+    def _filter_stocks(self, empty_message: str, past_perf_order_ascending: bool, N: int):
         df = self.compute_past_future_returns() if self.past_performance.empty else self.past_performance
         df = df.dropna()
 
         # trunk-ignore(bandit/B101)
-        assert len(df) > 0, """Loosers' Stock is an empty dataframe. Something went wrong horribly."""
+        assert len(df) > 0, empty_message
 
-        # Select N stocks which performed badly in the past y years and well in the future x years
-        # TODO: query further: past < 0, future > 0 and past < future and so on.
-        selected_stocks = df.sort_values(
-            by=[self.COL_PAST_PERF, self.COL_FUTURE_PERF],
-            ascending=[True, False],
-        ).head(N)
+        selected_stocks = (
+            df.sort_values(by=[self.COL_PAST_PERF, self.COL_FUTURE_PERF], ascending=[past_perf_order_ascending, False])
+            .head(N)
+            .reset_index(drop=True)
+        )
 
-        return LoosersPortfolio(
+        return StockPortfolio(
             data=selected_stocks,
             past_dates=self.past_performance_dates,
             future_dates=self.future_performance_dates,
@@ -192,7 +229,27 @@ class LoosersStock:
         )
 
     @classmethod
-    def find_optimal_x_y_N(cls, x_values: list, y_values: list, N_values: list) -> pd.DataFrame:
+    def loosers_portfolio(cls, x, y, N=30) -> tuple["StockPortolioAnalyzer", "StockPortfolio"]:
+        finder = cls(x, y)
+        port_folio = finder.get_loosers_portfolio(N)
+        return finder, port_folio
+
+    @classmethod
+    def winners_portfolio(cls, x, y, N=30) -> tuple["StockPortolioAnalyzer", "StockPortfolio"]:
+        finder = cls(x, y)
+        port_folio = finder.get_winners_portfolio(N)
+        return finder, port_folio
+
+    @classmethod
+    def penny_portfolio(
+        cls, x, y, min_price: float, max_price: float, N=30
+    ) -> tuple["StockPortolioAnalyzer", "StockPortfolio"]:
+        finder = cls(x, y, min_price=min_price, max_price=max_price)
+        port_folio = finder.get_penny_portfolio(N)
+        return finder, port_folio
+
+    @classmethod
+    def find_loosers_optimal_x_y_N(cls, x_values: list, y_values: list, N_values: list) -> pd.DataFrame:
         """
         Find optimal values for x, y, and N by trying different combinations.
 
@@ -211,7 +268,7 @@ class LoosersStock:
             stock_finder.compute_past_future_returns()
             for N in N_values:
                 try:
-                    loosers_port = stock_finder.get_loosers_stocks(N)
+                    loosers_port = stock_finder.get_loosers_portfolio(N)
                     results.append(
                         (
                             x,
@@ -235,25 +292,3 @@ class LoosersStock:
             results,
             columns=["x", "y", "N", "aggregated_cagr_past", "aggregated_cagr_future"],
         ).sort_values(by="aggregated_cagr_future", ascending=False)
-
-
-def main():
-    x_values = list(range(1, 5))
-    y_values = list(range(1, 5))
-    N_values = list(range(25, 50, 3))
-
-    df = LoosersStock.find_optimal_x_y_N(x_values, y_values, N_values)
-    df.to_csv("optimization_results.csv", index=False)
-    print("Optimization results saved to 'optimization_results.csv'.")
-
-    N = 30
-    x = 2
-    y = 3
-
-    stock_finder = LoosersStock(x, y)
-    port = stock_finder.get_loosers_stocks(N)
-    print(port.analysis)
-
-
-if __name__ == "__main__":
-    main()
