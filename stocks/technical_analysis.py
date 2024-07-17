@@ -56,6 +56,11 @@ class StockDataAnalysis:
         for ticker, df in self._data.items():
             df.to_csv(self.DATA_DIR / f"{ticker}.csv")
 
+    @classmethod
+    def compuute_and_save(cls):
+        cls.compute_technical_analysis()
+        cls.save()
+
 
 class MovingAverages:
     def __init__(self, stock_data):

@@ -306,3 +306,5 @@ __pycache__/
 .ipynb_checkpoints/
 stocks/notebooks/.ipynb_checkpoints/
 .trunk
+
+stocks/plotter.py

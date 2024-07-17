@@ -1,9 +1,13 @@
+from pathlib import Path
+
 import pandas as pd
 
 from stocks.data import StocksDataAPI
 
 
 class SafeStocks:
+    SAFE_STOCKS_DIR = Path("stocks/data/safe_stocks")
+
     def __init__(self):
         self.data_api = StocksDataAPI()
         self.stock_info = self.data_api.stock_info
@@ -32,16 +36,6 @@ class SafeStocks:
         **Reasoning:** Companies with strong liquidity ratios and ample cash reserves are better equipped to handle
         economic downturns and unforeseen expenses. Positive and growing free cash flow indicates that the company
         generates more cash than it spends, which can be used for reinvestment, paying dividends, or reducing debt.
-
-        Args:
-            df (_type_): _description_
-            max_market_rank (int, optional): _description_. Defaults to 500.
-            top_roa_threshold_pc (float, optional): _description_. Defaults to 0.25.
-            top_roe_threshold_pc (float, optional): _description_. Defaults to 0.25.
-            bottom_debt_to_equity_ratio (float, optional): _description_. Defaults to 0.25.
-
-        Returns:
-            pd.DataFrame: Recommnded stocks
         """
 
         columns = [
@@ -112,17 +106,6 @@ class SafeStocks:
         **Reasoning:** Companies with strong liquidity ratios and ample cash reserves are better equipped to handle
         economic downturns and unforeseen expenses. Positive and growing free cash flow indicates that the company
         generates more cash than it spends, which can be used for reinvestment, paying dividends, or reducing debt.
-
-            Args:
-                df (_type_): _description_
-                min_quick_ratio (int, optional): _description_. Defaults to 1.
-                min_current_ratio (int, optional): _description_. Defaults to 1.
-                min_cash_to_debt_qn (float, optional): _description_. Defaults to 0.8.
-                min_free_cashflow (int, optional): _description_. Defaults to 0.
-                min_operating_cashflow (int, optional): _description_. Defaults to 0.
-
-            Returns:
-                _type_: _description_
         """
 
         columns = [
@@ -192,16 +175,6 @@ class SafeStocks:
         **Reasoning:** Defensive stocks are typically less sensitive to economic cycles and tend to perform well in both
         good and bad economic times. Investing in these sectors can provide a buffer against market downturns.
         Low volatility stocks are less likely to experience drastic price swings, making them safer investments.
-
-            Args:
-                df (_type_): _description_
-                defensive_sectors (tuple, optional): _description_. Defaults to ( "consumer-cyclical", "utilities", "healthcare", "consumer-defensive", ).
-                closeness_to_52_week_low (float, optional): _description_. Defaults to 0.30.
-                max_beta (int, optional): _description_. Defaults to 1.
-                min_52_week_change (int, optional): _description_. Defaults to 0.
-
-            Returns:
-                _type_: _description_
         """
         df = self.df
 
@@ -233,12 +206,6 @@ class SafeStocks:
         - Consistent revenue growth.
         - Positive and increasing trailing EPS.
         - Low beta (less than 1).
-
-        Parameters:
-        df (pd.DataFrame): DataFrame containing stock data.
-
-        Returns:
-        pd.DataFrame: Filtered DataFrame.
         """
         df = self.df
 
@@ -262,15 +229,6 @@ class SafeStocks:
         **Reasoning:** Dividend-paying stocks can provide a steady income stream, which can cushion against market volatility.
         Companies with a long history of dividend payments are often more financially stable. A sustainable payout ratio ensures
         that the company can continue to pay dividends without compromising its financial health.
-
-            Args:
-                df (_type_): _description_
-
-            Returns:
-                _type_: _description_
-
-            Yields:
-                _type_: _description_
         """
         # sourcery skip: inline-immediately-returned-variable
         df = self.df
@@ -296,19 +254,33 @@ class SafeStocks:
         # )
         # dividend_history.columns = ["symbol", "LongDividendHistory"]
 
-        # trunk-ignore(bandit/B101)
         # assert dividend_history["LongDividendHistory"].all(), "Dividend history is too short"
 
         # dividend_stocks = pd.merge(dividend_stocks, dividend_history, on="symbol")
 
         return dividend_stocks
 
+    @classmethod
+    def save(cls):
+        safe_stocks = cls()
+
+        cls.SAFE_STOCKS_DIR.mkdir(parents=True, exist_ok=True)
+
+        df = safe_stocks.established_profitable_companies()
+        df.to_csv(cls.SAFE_STOCKS_DIR / "established_profitable_companies.csv")
+
+        df = safe_stocks.strong_financial_health_and_liquidity()
+        df.to_csv(cls.SAFE_STOCKS_DIR / "strong_financial_health_and_liquidity.csv")
+
+        df = safe_stocks.defensive_stocks()
+        df.to_csv(cls.SAFE_STOCKS_DIR / "defensive_stocks.csv")
+
+        df = safe_stocks.filter_stocks_for_consistent_growth()
+        df.to_csv(cls.SAFE_STOCKS_DIR / "stocks_for_consistent_growth.csv")
+
+        df = safe_stocks.divident_paying_stocks()
+        df.to_csv(cls.SAFE_STOCKS_DIR / "divident_paying_stocks.csv")
+
 
 if __name__ == "__main__":
-    safe_stocks = SafeStocks()
-
-    print(safe_stocks.established_profitable_companies())
-    print(safe_stocks.strong_financial_health_and_liquidity())
-    print(safe_stocks.defensive_stocks())
-    print(safe_stocks.filter_stocks_for_consistent_growth())
-    print(safe_stocks.divident_paying_stocks())
+    SafeStocks.save()

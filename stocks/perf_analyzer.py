@@ -3,12 +3,14 @@ import datetime
 import itertools
 from dataclasses import dataclass
 from functools import cached_property as cached
+from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from stocks.data import StocksDataAPI
 from stocks.portfolio import PortfolioAPI
+
+PORTFOLIO_DIR = Path("stocks/data/portfolio")
 
 
 @dataclass
@@ -320,9 +322,46 @@ class StockPortfolioAnalyzer:
         return local_results
 
 
-def main():
-    x_values = list(np.arange(0.5, 6, 0.5))
-    y_values = list(np.arange(0.5, 6, 0.5))
-    N_values = list(np.arange(10, 55, 5))
+def save_loosers_portfolio():
+    def _save_loosers_portolio(x, y, N, portfolio_name, portfolio_analysis_name):
+        _, result = StockPortfolioAnalyzer.loosers_portfolio(x=x, y=y, N=N)
+        result.data.to_csv(portfolio_name)
+        result.analysis.to_csv(portfolio_analysis_name)
 
-    return StockPortfolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values)
+        return result
+
+    # x_values = list(np.arange(0.5, 6, 0.5))
+    # y_values = list(np.arange(0.5, 6, 0.5))
+    # N_values = list(np.arange(10, 55, 5))
+
+    # StockPortfolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values)
+
+    # Optimal Results: x = 1, y = 4, N = 30, Expected CAGR ~= 100%
+
+    PORTFOLIO_DIR.mkdir(parents=True, exist_ok=True)
+
+    PORTFOLIO_CURRENT_DIR = PORTFOLIO_DIR / "loosers_current"
+    PORTFOLIO_CURRENT_DIR.mkdir(parents=True, exist_ok=True)
+
+    PORTFOLIO_HISTORY_DIR = PORTFOLIO_DIR / "loosers_history"
+    PORTFOLIO_HISTORY_DIR.mkdir(parents=True, exist_ok=True)
+
+    _save_loosers_portolio(
+        0.02,
+        4,
+        30,
+        PORTFOLIO_CURRENT_DIR / "loosers_portfolio.csv",
+        PORTFOLIO_CURRENT_DIR / "loosers_portfolio_analysis.csv",
+    )
+
+    _save_loosers_portolio(
+        1,
+        4,
+        30,
+        PORTFOLIO_HISTORY_DIR / "loosers_portfolio_history.csv",
+        PORTFOLIO_HISTORY_DIR / "loosers_portfolio_analysis_history.csv",
+    )
+
+
+if __name__ == "__main__":
+    save_loosers_portfolio()
