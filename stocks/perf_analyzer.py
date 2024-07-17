@@ -73,8 +73,12 @@ class StockPortfolio:
             index=["Portfolio Analysis"],
         ).T
 
+    @property
+    def analysis_dict(self) -> dict:
+        return list(self.analysis.to_dict().values())[0]
 
-class StockPortolioAnalyzer:
+
+class StockPortfolioAnalyzer:
     def __init__(self, x: float, y: float, min_price: float = 0, max_price: float = 10**7):
         self.x = x
         self.y = y
@@ -240,13 +244,13 @@ class StockPortolioAnalyzer:
         )
 
     @classmethod
-    def loosers_portfolio(cls, x, y, N=30) -> tuple["StockPortolioAnalyzer", "StockPortfolio"]:
+    def loosers_portfolio(cls, x, y, N=30) -> tuple["StockPortfolioAnalyzer", StockPortfolio]:
         finder = cls(x, y)
         port_folio = finder.get_loosers_portfolio(N)
         return finder, port_folio
 
     @classmethod
-    def winners_portfolio(cls, x, y, N=30) -> tuple["StockPortolioAnalyzer", "StockPortfolio"]:
+    def winners_portfolio(cls, x, y, N=30) -> tuple["StockPortfolioAnalyzer", StockPortfolio]:
         finder = cls(x, y)
         port_folio = finder.get_winners_portfolio(N)
         return finder, port_folio
@@ -254,7 +258,7 @@ class StockPortolioAnalyzer:
     @classmethod
     def penny_portfolio(
         cls, x, y, min_price: float, max_price: float, N=30
-    ) -> tuple["StockPortolioAnalyzer", "StockPortfolio"]:
+    ) -> tuple["StockPortfolioAnalyzer", StockPortfolio]:
         finder = cls(x, y, min_price=min_price, max_price=max_price)
         port_folio = finder.get_penny_portfolio(N)
         return finder, port_folio
@@ -301,14 +305,14 @@ class StockPortolioAnalyzer:
 
         for N in N_values:
             try:
-                loosers_port = stock_finder.get_loosers_portfolio(N)
+                loosers_port: StockPortfolio = stock_finder.get_loosers_portfolio(N)
                 local_results.append(
                     {
                         "x": x,
                         "y": y,
                         "N": N,
                     }
-                    | list(loosers_port.analysis.to_dict().values())[0]
+                    | loosers_port.analysis_dict
                 )
             except Exception as e:
                 print(f"Failed for x={x}, y={y}, N={N}: {e}")
@@ -321,4 +325,4 @@ def main():
     y_values = list(np.arange(0.5, 6, 0.5))
     N_values = list(np.arange(10, 55, 5))
 
-    return StockPortolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values)
+    return StockPortfolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values)

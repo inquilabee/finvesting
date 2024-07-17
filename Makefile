@@ -8,10 +8,6 @@ install-hooks:
 run-hooks:
 	pre-commit run --all-files
 
-# Install pre-commit hooks
-install-hooks:
-	pre-commit install
-
 # update packages
 update:
 	pip install --upgrade pip

@@ -178,17 +178,20 @@ class StocksDataAPI:
             .drop_duplicates("symbol")
         )
 
-    def _download_stock_info(self, stock_code):
+    def _download_stock_info(self, stock_code) -> dict:
         try:
             stock_symbol_info = yf.Ticker(f"{stock_code}.NS").info
 
             if "dayHigh" not in stock_symbol_info:
-                raise MissingDataError(f"Data seems to be missing for {stock_code}")
+                raise MissingDataError(
+                    f"Data seems to be missing for {stock_code} as it does not have dayHigh key present."
+                    f"Present keys: {stock_symbol_info.keys()}"
+                )
 
             return stock_symbol_info | {"symbol": stock_code}
         except Exception as e:
             print(f"Could not download for {stock_code} - {str(e)}")
-            return None
+            return {"symbol": stock_code}
 
     def download_stocks_info(self) -> tuple[pd.DataFrame, list]:
         df_stocks_nse_base = self.equity_data
@@ -215,7 +218,7 @@ class StocksDataAPI:
             if result is not None:
                 stock_info.append(result)
             else:
-                failed_download.append(result["symbol"])  # type: ignore
+                failed_download.append(result["symbol"])
 
         df_stock_info = pd.DataFrame(stock_info).rename(columns=lambda col: camel_to_snake(col))
 
