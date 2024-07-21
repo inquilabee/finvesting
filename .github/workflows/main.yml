@@ -7,6 +7,8 @@ on:
 jobs:
   cron:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
 
     steps:
       - uses: actions/checkout@v4
@@ -22,10 +24,6 @@ jobs:
 
       - name: Verify PATH
         run: echo $PATH
-
-      - name: Add current working directory to PYTHONPATH
-        run: |
-          export PYTHONPATH="$(pwd)":$PYTHONPATH
 
       - name: Verify PYTHONPATH
         run: echo $PYTHONPATH
