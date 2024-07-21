@@ -2,7 +2,7 @@ name: Download data
 
 on:
   schedule:
-    - cron: "30 17 * * *"
+    - cron: "35 16 * * *"
 
 jobs:
   cron:
