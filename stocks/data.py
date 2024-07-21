@@ -132,9 +132,9 @@ class StocksDataAPI:
     SECTOR_DATA = Path("stocks/data/base/all_stocks_sector.csv")
     EQUITY_DATA = Path("stocks/data/base/EQUITY_L.csv")
 
-    STOCK_INFO_COLUMNS = sum(list(reorganized_columns.values()), [])
+    STOCK_INFO_COLUMNS: list[str] = sum(list(reorganized_columns.values()), [])
 
-    _price_history_cache = {}
+    _price_history_cache: dict[str, pd.DataFrame] = {}
 
     def _clear_dirs(self):
         """
@@ -209,7 +209,7 @@ class StocksDataAPI:
         """
 
         stock_info = []
-        failed_download = []
+        failed_download: list[str] = []
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             results = list(executor.map(self._download_stock_info, base_symbols))

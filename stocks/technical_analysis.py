@@ -12,12 +12,13 @@ class StockDataAnalysis:
 
     def __init__(self, tickers: list[str] | None = None):
         self.tickers = tickers or data_api.symbols
-        self._data = {}
+        self._data: dict = {}
 
     def compute_technical_analysis(self):
         self._data = {ticker: self.technical_analysis(ticker) for ticker in self.tickers}
 
-    def technical_analysis(self, symbol):
+    @staticmethod
+    def technical_analysis(symbol):
         data = data_api.price_history(symbol).sort_values("Date", ascending=True)
 
         # Tech Analysis Classes
@@ -58,8 +59,9 @@ class StockDataAnalysis:
 
     @classmethod
     def compuute_and_save(cls):
-        cls.compute_technical_analysis()
-        cls.save()
+        analysis = cls()
+        analysis.compute_technical_analysis()
+        analysis.save()
 
 
 class MovingAverages:
