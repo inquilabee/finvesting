@@ -81,7 +81,7 @@ class StockPortfolio:
 
 
 class StockPortfolioAnalyzer:
-    def __init__(self, x: float, y: float, min_price: float = 0, max_price: float = 10**7):
+    def __init__(self, x: float, y: float, min_price: float = 0, max_price: float = 10**7, z: float = 0):
         self.x = x
         self.y = y
         self.min_price = min_price
@@ -130,9 +130,8 @@ class StockPortfolioAnalyzer:
     def valid_symbols(self) -> list[str]:
         return [
             symbol
-            for symbol in self.data_api.symbols
-            if symbol not in self.data_api.missing_price_history
-            and (
+            for symbol in self.data_api.history_symbols
+            if (
                 self.data_api.history_oldest_date(symbol)
                 and self.data_api.history_oldest_date(symbol) <= self.past_start_date
             )

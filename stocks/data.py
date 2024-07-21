@@ -160,6 +160,18 @@ class StocksDataAPI:
         return self.equity_data["symbol"].to_list()
 
     @property
+    def info_symbols(self) -> list[str]:
+        return self.stock_info["symbol"].to_list()
+
+    @property
+    def missing_price_history(self) -> list[str]:
+        return [symbol for symbol in self.symbols if not self.is_price_history_available(symbol)]
+
+    @property
+    def history_symbols(self) -> list[str]:
+        return [symbol for symbol in self.symbols if self.is_price_history_available(symbol)]
+
+    @property
     def equity_data(self):
         return (
             pd.read_csv(self.EQUITY_DATA)
@@ -326,10 +338,6 @@ class StocksDataAPI:
 
     def is_price_history_available(self, symbol: str) -> bool:
         return Path(self.PRICE_HISTORY_DIR / f"{symbol}.csv").exists()
-
-    @property
-    def missing_price_history(self) -> list[str]:
-        return [symbol for symbol in self.symbols if not self.is_price_history_available(symbol)]
 
     @classmethod
     def price_history(cls, symbol: str) -> pd.DataFrame:

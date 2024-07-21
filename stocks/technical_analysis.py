@@ -11,7 +11,7 @@ class StockDataAnalysis:
     DATA_DIR = Path("stocks/data/analysed").resolve()
 
     def __init__(self, tickers: list[str] | None = None):
-        self.tickers = tickers or data_api.symbols
+        self.tickers = tickers or data_api.history_symbols
         self._data: dict = {}
 
     def compute_technical_analysis(self):
