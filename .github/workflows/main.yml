@@ -2,23 +2,26 @@ name: Download data
 
 on:
   schedule:
-    - cron: "0 17 * * *"
+    - cron: "30 17 * * *"
 
 jobs:
   cron:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10"]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
+
+      - name: Add current working directory to PATH
+        run: |
+          echo "$(pwd)" >> $GITHUB_PATH
+
+      - name: Verify PATH
+        run: echo $PATH
 
       - name: Install dependencies
         run: |
@@ -26,10 +29,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run download script
-        run: |
-          export PYTHONPATH=./finvesting:$PYTHONPATH
-          python run_scripts/github_download.py
-        working-directory: ./finvesting
+        run: python run_scripts/github_download.py
 
       # - name: Run Notebooks
       #   run: find . -name "*.ipynb" -print0 | xargs -0 -I {} jupyter nbconvert --execute --to notebook --inplace "{}"
