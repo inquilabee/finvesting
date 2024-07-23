@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from stocks.data import StocksDataAPI
+from stocks.resource import StocksDataAPI
 
 
 class SafeStocks:

@@ -1,16 +1,17 @@
 from stocks import perf_analyzer
-from stocks.data import StocksDataAPI
+from stocks.resource import StocksDataAPI
 from stocks.safe_stocks import SafeStocks
 from stocks.technical_analysis import StockDataAnalysis
 
 # Base data
 StocksDataAPI().download_data()
 
-# Analyse data
-StockDataAnalysis.compuute_and_save()
+task_list = [StockDataAnalysis.compute_and_save, SafeStocks.save, perf_analyzer.save_loosers_portfolio]
 
-# Safe Stocks
-SafeStocks.save()
+for task in task_list:
+    try:
+        task()
+    except Exception as e:
+        print(f"Error in task {task}: {e}")
 
-# Loosers' Portfolio
-perf_analyzer.save_loosers_portfolio()
+perf_analyzer.save_optimal_xyzN_for_loosers_analysis()

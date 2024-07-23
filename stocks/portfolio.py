@@ -1,6 +1,6 @@
 import datetime
 
-from stocks.data import StocksDataAPI
+from stocks.resource import StocksDataAPI
 
 
 class PortfolioAPI:

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from stocks.data import StocksDataAPI
+from stocks.resource import StocksDataAPI
 
 data_api = StocksDataAPI()
 
@@ -61,7 +61,7 @@ class StockDataAnalysis:
             df.to_csv(self.DATA_DIR / f"{ticker}.csv")
 
     @classmethod
-    def compuute_and_save(cls):
+    def compute_and_save(cls):
         analysis = cls()
         analysis.compute_technical_analysis()
         analysis.save()

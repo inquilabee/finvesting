@@ -5,10 +5,11 @@ from dataclasses import dataclass
 from functools import cached_property as cached
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
-from stocks.data import StocksDataAPI
 from stocks.portfolio import PortfolioAPI
+from stocks.resource import StocksDataAPI
 
 PORTFOLIO_DIR = Path("stocks/data/portfolio")
 
@@ -81,9 +82,27 @@ class StockPortfolio:
 
 
 class StockPortfolioAnalyzer:
-    def __init__(self, x: float, y: float, min_price: float = 0, max_price: float = 10**7, z: float = 0):
+    def __init__(self, x: float, y: float, z: float = 0, min_price: float = 0, max_price: float = 10**7):
+        """
+        Initialize the object with given parameters and calculate various date ranges for past and future performance analysis.
+
+        ### Args:
+        - x (float): Number of years for future performance analysis.
+        - y (float): Number of years for past performance analysis.
+        - z (float, optional): Offset in years for date calculations. Defaults to 0.
+        - min_price (float, optional): Minimum price value. Defaults to 0.
+        - max_price (float, optional): Maximum price value. Defaults to 10^7.
+
+        ### Returns:
+        None
+
+        ### Raises:
+        AssertionError: If the date ranges are invalid.
+        """
+
         self.x = x
         self.y = y
+        self.z = z
         self.min_price = min_price
         self.max_price = max_price
 
@@ -92,17 +111,19 @@ class StockPortfolioAnalyzer:
 
         self.current_date = datetime.datetime.now().date()
 
+        self.last_evaluation_date = self.current_date - datetime.timedelta(days=int(365 * z))
+
         # current (future) performance dates (x years)
         self.future_performance_dates = (
-            self.current_date - datetime.timedelta(days=int(365 * self.x)),
-            self.current_date,
+            self.last_evaluation_date - datetime.timedelta(days=int(365 * self.x)),
+            self.last_evaluation_date,
         )
         self.future_start_date, self.future_end_date = self.future_performance_dates
 
         # past performance dates (y years)
         self.past_performance_dates = (
-            self.current_date - datetime.timedelta(days=int(365 * (self.x + self.y))),
-            self.current_date - datetime.timedelta(days=int(365 * self.x)),
+            self.last_evaluation_date - datetime.timedelta(days=int(365 * (self.x + self.y))),
+            self.last_evaluation_date - datetime.timedelta(days=int(365 * self.x)),
         )
 
         self.past_start_date, self.past_end_date = self.past_performance_dates
@@ -265,7 +286,7 @@ class StockPortfolioAnalyzer:
         return finder, port_folio
 
     @classmethod
-    def find_loosers_optimal_x_y_N(cls, x_values: list, y_values: list, N_values: list) -> pd.DataFrame:
+    def find_loosers_optimal_x_y_N(cls, x_values: list, y_values: list, N_values: list, z_values: list) -> pd.DataFrame:
         """
         Find optimal values for x, y, and N by trying different combinations.
 
@@ -281,8 +302,8 @@ class StockPortfolioAnalyzer:
 
         with concurrent.futures.ProcessPoolExecutor() as executor:
             future_to_combination = {
-                executor.submit(cls._evaluate_combination, x, y, N_values, cls): (x, y)
-                for x, y in itertools.product(x_values, y_values)
+                executor.submit(cls._evaluate_combination, x, y, z, N_values, cls): (x, y)
+                for x, y, z in itertools.product(x_values, y_values, z_values)
             }
 
             for future in concurrent.futures.as_completed(future_to_combination):
@@ -297,11 +318,14 @@ class StockPortfolioAnalyzer:
     def _evaluate_combination(
         x,
         y,
+        z,
         N_values,
         cls,
     ):
-        stock_finder = cls(x, y)
+
+        stock_finder = cls(x, y, z)
         stock_finder.compute_past_future_returns()
+
         local_results = []
 
         for N in N_values:
@@ -311,6 +335,7 @@ class StockPortfolioAnalyzer:
                     {
                         "x": x,
                         "y": y,
+                        "z": z,
                         "N": N,
                     }
                     | loosers_port.analysis_dict
@@ -328,14 +353,6 @@ def save_loosers_portfolio():
         result.analysis.to_csv(portfolio_analysis_name)
 
         return result
-
-    # x_values = list(np.arange(0.5, 6, 0.5))
-    # y_values = list(np.arange(0.5, 6, 0.5))
-    # N_values = list(np.arange(10, 55, 5))
-
-    # StockPortfolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values)
-
-    # Optimal Results: x = 1, y = 4, N = 30, Expected CAGR ~= 100%
 
     PORTFOLIO_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -360,6 +377,17 @@ def save_loosers_portfolio():
         PORTFOLIO_HISTORY_DIR / "loosers_portfolio_history.csv",
         PORTFOLIO_HISTORY_DIR / "loosers_portfolio_analysis_history.csv",
     )
+
+
+def save_optimal_xyzN_for_loosers_analysis():
+    x_values = list(np.arange(0.5, 6, 0.5))
+    y_values = list(np.arange(0.5, 6, 0.5))
+    z_values = list(np.arange(0, 6, 0.5))
+    N_values = list(np.arange(20, 50, 5))
+
+    df = StockPortfolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values, z_values)
+
+    df.to_csv(PORTFOLIO_DIR / "loosers_history_returns" / "loosers_optimal_xyzN.csv")
 
 
 if __name__ == "__main__":
