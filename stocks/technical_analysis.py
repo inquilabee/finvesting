@@ -1,3 +1,4 @@
+import concurrent.futures
 from pathlib import Path
 
 import pandas as pd
@@ -15,7 +16,9 @@ class StockDataAnalysis:
         self._data: dict = {}
 
     def compute_technical_analysis(self):
-        self._data = {ticker: self.technical_analysis(ticker) for ticker in self.tickers}
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            futures = {executor.submit(self.technical_analysis, ticker): ticker for ticker in self.tickers}
+            self._data = {futures[future]: future.result() for future in concurrent.futures.as_completed(futures)}
 
     @staticmethod
     def technical_analysis(symbol):

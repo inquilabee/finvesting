@@ -48,17 +48,6 @@ repos:
       - id: bandit
         args: ["-c", ".bandit.yaml"]
 
-  - repo: https://github.com/sourcery-ai/sourcery
-    # Source: https://docs.sourcery.ai/Guides/Getting-Started/Pre-Commit/
-    # https://sourcery.ai/blog/python-best-practices/
-    rev: v1.21.0
-    hooks:
-      - id: sourcery
-        # only check the files which have changed: does not work on first commit
-        args: [--diff=git diff HEAD, --no-summary]
-        # args: [ --diff=git diff HEAD, --fix, --no-summary ]
-        # args: [ --fix, --no-summary ]
-
 # sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
 ci:
   autoupdate_schedule: weekly
