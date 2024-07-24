@@ -121,16 +121,18 @@ class MissingDataError(Exception):
 
 
 class StocksDataAPI:
-    HISTORICAL_DATA_DIR = Path("stocks/data/history")
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
+    HISTORICAL_DATA_DIR = BASE_DIR / Path("stocks/data/history")
     PRICE_HISTORY_DIR = HISTORICAL_DATA_DIR / "price"
     BALANCE_SHEET_HISTORY_DIR = HISTORICAL_DATA_DIR / "balance_sheet"
     DIVIDENDS_HISTORY_DIR = HISTORICAL_DATA_DIR / "dividends"
     FINANCIALS_HISTORY_DIR = HISTORICAL_DATA_DIR / "financials"
     CASHFLOW_HISTORY_DIR = HISTORICAL_DATA_DIR / "cashflow"
-    ALL_STOCKS_PATH = Path("stocks/data/base/all_stocks.csv")
 
-    SECTOR_DATA = Path("stocks/data/base/all_stocks_sector.csv")
-    EQUITY_DATA = Path("stocks/data/base/EQUITY_L.csv")
+    ALL_STOCKS_PATH = BASE_DIR / Path("stocks/data/base/all_stocks.csv")
+    SECTOR_DATA = BASE_DIR / Path("stocks/data/base/all_stocks_sector.csv")
+    EQUITY_DATA = BASE_DIR / Path("stocks/data/base/EQUITY_L.csv")
 
     STOCK_INFO_COLUMNS: list[str] = sum(list(reorganized_columns.values()), [])
 

@@ -4,4 +4,5 @@
 - Notebooks
 - Indices
 
-- Better logging
+- Better logging, settings
+- Show important data in notebooks

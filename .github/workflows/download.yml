@@ -37,8 +37,11 @@ jobs:
         run: python run_scripts/github_download.py
         working-directory: .
 
-      # - name: Run Notebooks
-      #   run: find . -name "*.ipynb" -print0 | xargs -0 -I {} jupyter nbconvert --execute --to notebook --inplace "{}"
+      - name: Clear Notebook Outputs
+        run: find . -name "*.ipynb" -print0 | xargs -0 -I {} jupyter nbconvert --clear-output --inplace "{}"
+
+      - name: Run Notebooks
+        run: find . -name "*.ipynb" -print0 | xargs -0 -I {} jupyter nbconvert --execute --to notebook --inplace "{}"
 
       - name: Configure Git
         run: |
