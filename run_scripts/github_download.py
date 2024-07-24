@@ -13,5 +13,3 @@ for task in task_list:
         task()
     except Exception as e:
         print(f"Error in task {task}: {e}")
-
-perf_analyzer.save_optimal_xyzN_for_loosers_analysis()

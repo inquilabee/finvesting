@@ -380,14 +380,18 @@ def save_loosers_portfolio():
 
 
 def save_optimal_xyzN_for_loosers_analysis():
-    x_values = list(np.arange(0.5, 6, 0.5))
-    y_values = list(np.arange(0.5, 6, 0.5))
+    x_values = list(np.arange(1, 6, 0.5))
+    y_values = list(np.arange(1, 6, 0.5))
     z_values = list(np.arange(0, 6, 0.5))
     N_values = list(np.arange(20, 50, 5))
 
     df = StockPortfolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values, z_values)
 
-    df.to_csv(PORTFOLIO_DIR / "loosers_history_returns" / "loosers_optimal_xyzN.csv")
+    file_name = PORTFOLIO_DIR / "loosers_history_returns" / "loosers_optimal_xyzN.csv"
+
+    file_name.parent.mkdir(exist_ok=True, parents=True)
+
+    df.to_csv()
 
 
 if __name__ == "__main__":

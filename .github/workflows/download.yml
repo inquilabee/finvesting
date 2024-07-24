@@ -2,10 +2,10 @@ name: Download data
 
 on:
   schedule:
-    - cron: "30 18 * * *"
+    - cron: "0 18 * * *"
 
 jobs:
-  cron:
+  data-download:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: ${{ github.workspace }}
@@ -48,7 +48,7 @@ jobs:
       - name: Commit changes
         run: |
           git add .
-          git commit -m "Automated data update"
+          git commit -m "Automated data download"
 
       - name: Push changes
         env:

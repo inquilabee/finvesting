@@ -1,0 +1,3 @@
+from stocks import perf_analyzer
+
+perf_analyzer.save_optimal_xyzN_for_loosers_analysis()
