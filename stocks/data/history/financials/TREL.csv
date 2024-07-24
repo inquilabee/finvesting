@@ -1,54 +1,54 @@
-,2023-03-31,2022-03-31
-Tax Effect Of Unusual Items,-28961461.79402,0.0
-Tax Rate For Calcs,0.192691,0.0
-Normalized EBITDA,1358300000.0,0.0
-Total Unusual Items,-150300000.0,0.0
-Total Unusual Items Excluding Goodwill,-150300000.0,0.0
-Net Income From Continuing Operation Net Minority Interest,70800000.0,-100000.0
-Reconciled Depreciation,735100000.0,0.0
-Reconciled Cost Of Revenue,298000000.0,0.0
-EBITDA,1208000000.0,0.0
-EBIT,472900000.0,0.0
-Net Interest Income,-374900000.0,0.0
-Interest Expense,382600000.0,0.0
-Interest Income,9200000.0,0.0
-Normalized Income,192138538.20598,-100000.0
-Net Income From Continuing And Discontinued Operation,276200000.0,-100000.0
-Total Expenses,767200000.0,100000.0
-Rent Expense Supplemental,122900000.0,0.0
-Diluted Average Shares,245695524.0,245695524.0
-Basic Average Shares,245695524.0,245695524.0
-Diluted EPS,1.124156,-0.000407
-Basic EPS,1.124156,-0.000407
-Diluted NI Availto Com Stockholders,276200000.0,-100000.0
-Net Income Common Stockholders,276200000.0,-100000.0
-Otherunder Preferred Stock Dividend,0.0,0.0
-Net Income,276200000.0,-100000.0
-Minority Interests,-2100000.0,0.0
-Net Income Including Noncontrolling Interests,278300000.0,-100000.0
-Net Income Discontinuous Operations,205400000.0,0.0
-Net Income Continuous Operations,72900000.0,-100000.0
-Tax Provision,17400000.0,0.0
-Pretax Income,90300000.0,0.0
-Other Non Operating Income Expenses,19600000.0,
-Special Income Charges,-148500000.0,0.0
-Other Special Charges,112600000.0,
-Write Off,35900000.0,0.0
-Net Non Operating Interest Income Expense,-374900000.0,0.0
-Total Other Finance Cost,1500000.0,
-Interest Expense Non Operating,382600000.0,0.0
-Interest Income Non Operating,9200000.0,0.0
-Operating Income,596000000.0,-100000.0
-Operating Expense,469200000.0,100000.0
-Other Operating Expenses,135800000.0,
-Depreciation And Amortization In Income Statement,216900000.0,0.0
-Amortization,700000.0,0.0
-Depreciation Income Statement,216200000.0,0.0
-Selling General And Administration,31500000.0,100000.0
-Selling And Marketing Expense,2700000.0,0.0
-General And Administrative Expense,28800000.0,100000.0
-Rent And Landing Fees,3600000.0,0.0
-Gross Profit,1065200000.0,0.0
-Cost Of Revenue,298000000.0,0.0
-Total Revenue,1363200000.0,0.0
-Operating Revenue,1363200000.0,0.0
+,2024-03-31,2023-03-31,2022-03-31
+Tax Effect Of Unusual Items,763869016.608914,-25936212.624585,0.0
+Tax Rate For Calcs,0.271299,0.192691,0.0
+Normalized EBITDA,775800000.0,1344100000.0,0.0
+Total Unusual Items,2815600000.0,-134600000.0,0.0
+Total Unusual Items Excluding Goodwill,2815600000.0,-134600000.0,0.0
+Net Income From Continuing Operation Net Minority Interest,2438900000.0,70800000.0,-100000.0
+Reconciled Depreciation,162000000.0,735100000.0,0.0
+Reconciled Cost Of Revenue,,298000000.0,0.0
+EBITDA,3591400000.0,1209500000.0,0.0
+EBIT,3429400000.0,474400000.0,0.0
+Net Interest Income,-81800000.0,-384100000.0,0.0
+Interest Expense,81800000.0,384100000.0,0.0
+Interest Income,,9200000.0,0.0
+Normalized Income,387169016.608914,179463787.375415,-100000.0
+Net Income From Continuing And Discontinued Operation,2504100000.0,276300000.0,-100000.0
+Total Expenses,589500000.0,831400000.0,100000.0
+Rent Expense Supplemental,,122900000.0,0.0
+Diluted Average Shares,245500000.0,245695524.0,245695524.0
+Basic Average Shares,245500000.0,245695524.0,245695524.0
+Diluted EPS,10.2,1.124563,-0.000407
+Basic EPS,10.2,1.124563,-0.000407
+Diluted NI Availto Com Stockholders,2504100000.0,276300000.0,-100000.0
+Net Income Common Stockholders,2504100000.0,276300000.0,-100000.0
+Otherunder Preferred Stock Dividend,0.0,0.0,0.0
+Net Income,2504100000.0,276300000.0,-100000.0
+Minority Interests,-500000.0,-2100000.0,0.0
+Net Income Including Noncontrolling Interests,2504600000.0,278400000.0,-100000.0
+Net Income Discontinuous Operations,65200000.0,205500000.0,0.0
+Net Income Continuous Operations,2439400000.0,72900000.0,-100000.0
+Tax Provision,908200000.0,17400000.0,0.0
+Pretax Income,3347600000.0,90300000.0,0.0
+Other Non Operating Income Expenses,235100000.0,77200000.0,
+Special Income Charges,2815600000.0,-134600000.0,0.0
+Other Special Charges,-2815600000.0,134600000.0,
+Write Off,,35900000.0,0.0
+Net Non Operating Interest Income Expense,-81800000.0,-384100000.0,0.0
+Total Other Finance Cost,,1500000.0,
+Interest Expense Non Operating,81800000.0,384100000.0,0.0
+Interest Income Non Operating,,9200000.0,0.0
+Operating Income,378700000.0,531800000.0,-100000.0
+Operating Expense,589500000.0,831400000.0,100000.0
+Other Operating Expenses,332800000.0,533200000.0,
+Depreciation And Amortization In Income Statement,162000000.0,216900000.0,0.0
+Amortization,,700000.0,0.0
+Depreciation Income Statement,162000000.0,216900000.0,0.0
+Selling General And Administration,,31500000.0,100000.0
+Selling And Marketing Expense,,2700000.0,0.0
+General And Administrative Expense,,28800000.0,100000.0
+Rent And Landing Fees,,3600000.0,0.0
+Gross Profit,,1065200000.0,0.0
+Cost Of Revenue,,298000000.0,0.0
+Total Revenue,968200000.0,1363200000.0,0.0
+Operating Revenue,968200000.0,1363200000.0,0.0
