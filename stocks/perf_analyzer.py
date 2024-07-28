@@ -11,6 +11,7 @@ from stocks.portfolio import PortfolioAPI
 from stocks.resource import StocksDataAPI
 
 THREAD_PROC_MAX_WORKERS = multiprocessing.cpu_count()
+
 PORTFOLIO_DIR = Path("stocks/data/portfolio")
 
 
@@ -150,7 +151,7 @@ class StockPortfolioAnalyzer:
         ]
 
     @classmethod
-    def perf_file_name(cls, x, y, z):
+    def perf_file_name(cls, x: float, y: float, z: float):
         return cls.PERFORMANCE_DIR / f"{x}_{y}_{z}.csv"
 
     @property
