@@ -1,88 +1,76 @@
 import concurrent.futures
 import datetime
 import itertools
-from dataclasses import dataclass
+import multiprocessing
 from functools import cached_property as cached
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from stocks.portfolio import PortfolioAPI
 from stocks.resource import StocksDataAPI
 
+THREAD_PROC_MAX_WORKERS = multiprocessing.cpu_count()
 PORTFOLIO_DIR = Path("stocks/data/portfolio")
 
 
-@dataclass
-class StockPortfolio:
-    data: pd.DataFrame
-    past_dates: tuple[datetime.date, datetime.date]
-    future_dates: tuple[datetime.date, datetime.date]
-    col_past_perf: str
-    col_future_perf: str
-    col_xy_price: str
-    col_x_price: str
-    col_current_price: str
+class PerfColumns:
+    COL_PAST_PERF = "past_performance_cagr_y"
+    COL_FUTURE_PERF = "future_performance_cagr_x"
+    COL_XY_PRICE = "price_xy_years_ago"
+    COL_X_PRICE = "price_x_years_ago"
+    COL_CURR_PRICE = "price_current"
+    COL_PAST_CAGR = "past_cagr"
+    COL_FUTURE_CAGR = "future_cagr"
 
-    @property
-    def _absolute_return_future(self):
-        start_price = self.data[self.col_x_price].sum()
-        end_price = self.data[self.col_current_price].sum()
-        return_pct = (end_price - start_price) / start_price
-        return return_pct * 100
+    @classmethod
+    def perf_columns_data_to_dict(
+        cls, col_xy_price, col_x_price, col_curr_price, col_past_perf, col_future_perf
+    ) -> dict:
+        return {
+            cls.COL_XY_PRICE: col_xy_price,
+            cls.COL_X_PRICE: col_x_price,
+            cls.COL_CURR_PRICE: col_curr_price,
+            cls.COL_PAST_PERF: col_past_perf,
+            cls.COL_FUTURE_PERF: col_future_perf,
+        }
 
-    @property
-    def _mean_cagr_future(self):
-        return self.data[self.col_future_perf].mean()
 
-    @property
-    def _future_cagr(self) -> float | None:
-        portfolio_api = PortfolioAPI()
-        return portfolio_api.calculate_combined_cagr(
-            self.data["stock"].values, self.future_dates[0], self.future_dates[1]
-        )
+class PerfDates:
+    PERF_CURRENT_DATE = "current_date"
+    PERF_LAST_EVAL_DATE = "last_evaluation_date"
+    PERF_FUTURE_START_DATE = "future_start_date"
+    PERF_FUTURE_END_DATE = "future_end_date"
+    PERF_PAST_START_DATE = "past_start_date"
+    PERF_PAST_END_DATE = "past_end_date"
 
-    @property
-    def _absolute_return_past(self):
-        start_price = self.data[self.col_xy_price].sum()
-        end_price = self.data[self.col_x_price].sum()
-        return_pct = (end_price - start_price) / start_price
-        return return_pct * 100
-
-    @property
-    def _mean_cagr_past(self):
-        return self.data[self.col_past_perf].mean()
-
-    @property
-    def _past_cagr(self) -> float | None:
-        portfolio_api = PortfolioAPI()
-        return portfolio_api.calculate_combined_cagr(self.data["stock"].values, self.past_dates[0], self.past_dates[1])
-
-    @property
-    def analysis(self) -> pd.DataFrame:
-        return pd.DataFrame(
-            {
-                "absolute_return_past": [self._absolute_return_past],
-                "absolute_return_future": [self._absolute_return_future],
-                "mean_cagr_past": [self._mean_cagr_past],
-                "mean_cagr_future": [self._mean_cagr_future],
-                "future_cagr": [self._future_cagr],
-                "past_cagr": [self._past_cagr],
-                "sum_past_xy_price": [self.data[self.col_xy_price].sum()],
-                "sum_past_x_price": [self.data[self.col_x_price].sum()],
-                "sum_current_price": [self.data[self.col_current_price].sum()],
-            },
-            index=["Portfolio Analysis"],
-        ).T
-
-    @property
-    def analysis_dict(self) -> dict:
-        return list(self.analysis.to_dict().values())[0]
+    @classmethod
+    def data_to_dict(
+        cls, curr_date, last_eval_date, future_start_date, future_end_date, past_start_date, past_end_date
+    ) -> dict:
+        return {
+            cls.PERF_CURRENT_DATE: curr_date,
+            cls.PERF_LAST_EVAL_DATE: last_eval_date,
+            cls.PERF_FUTURE_START_DATE: future_start_date,
+            cls.PERF_FUTURE_END_DATE: future_end_date,
+            cls.PERF_PAST_START_DATE: past_start_date,
+            cls.PERF_PAST_END_DATE: past_end_date,
+        }
 
 
 class StockPortfolioAnalyzer:
-    def __init__(self, x: float, y: float, z: float = 0, min_price: float = 0, max_price: float = 10**7):
+
+    PERFORMANCE_DIR = PORTFOLIO_DIR / "performance"
+
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        z: float = 0,
+        min_price: float = 0,
+        max_price: float = 10**7,
+        autosave_performance_data: bool = True,
+    ):
         """
         Initialize the object with given parameters and calculate various date ranges for past and future performance analysis.
 
@@ -105,6 +93,7 @@ class StockPortfolioAnalyzer:
         self.z = z
         self.min_price = min_price
         self.max_price = max_price
+        self.autosave_data = autosave_performance_data
 
         self.portfolio_api = PortfolioAPI()
         self.data_api = StocksDataAPI()
@@ -135,17 +124,15 @@ class StockPortfolioAnalyzer:
 
         print(f"Past performance dates {self.past_start_date} to {self.past_end_date}")
         print(f"Future performance dates {self.future_start_date} to {self.future_end_date}")
-        print(f"Analyzing data of last {self.x + self.y} years")
+        print(f"Ignoring last {self.z} years of data from {self.last_evaluation_date} to {self.current_date}")
+        print(f"Analyzing data of last {self.x + self.y} years, (ignoring last {self.z} years)")
 
         # Performance dataframe (based on x and y)
-        self.past_performance = pd.DataFrame()
+        self._past_performance = pd.DataFrame()
 
-        # column names
-        self.COL_PAST_PERF = f"past_performance_cagr_{self.y}"
-        self.COL_FUTURE_PERF = f"future_performance_cagr_{self.x}"
-        self.COL_XY_PRICE = f"price_{self.x + self.y}_years_ago"
-        self.COL_X_PRICE = f"price_{self.x}_years_ago"
-        self.COL_CURR_PRICE = "price_current"
+        # Create performance directory
+        self.PERFORMANCE_DIR.mkdir(parents=True, exist_ok=True)
+        self.PERFORMANCE_FILE = self.perf_file_name(x, y, z)
 
     @cached
     def valid_symbols(self) -> list[str]:
@@ -162,19 +149,81 @@ class StockPortfolioAnalyzer:
             )
         ]
 
-    def compute_past_future_returns(self) -> pd.DataFrame:
+    @classmethod
+    def perf_file_name(cls, x, y, z):
+        return cls.PERFORMANCE_DIR / f"{x}_{y}_{z}.csv"
+
+    @property
+    def past_performance(self) -> pd.DataFrame:
+        if self._past_performance.empty:
+            self._past_performance = self._compute_past_future_returns()
+
+        if self.autosave_data:
+            self.save_data()
+
+        return self._past_performance
+
+    def read_from_file(self) -> pd.DataFrame:
+        return pd.read_csv(self.PERFORMANCE_FILE)
+
+    def save_data(self):
+        if self._past_performance.empty:
+            self._past_performance = self._compute_past_future_returns()
+
+        self._past_performance.to_csv(self.PERFORMANCE_FILE)
+
+    @classmethod
+    def save_perf_combinations(
+        cls,
+        x_values: list[float],
+        y_values: list[float],
+        z_values: list[float],
+    ) -> None:
+
+        with concurrent.futures.ProcessPoolExecutor(max_workers=THREAD_PROC_MAX_WORKERS) as executor:
+            future_to_combination = {
+                executor.submit(
+                    cls._save_combination,
+                    x,
+                    y,
+                    z,
+                ): (x, y, z)
+                for x, y, z in itertools.product(x_values, y_values, z_values)
+            }
+
+            for future in concurrent.futures.as_completed(future_to_combination):
+                future.result()
+
+    def _calculate_cagr_for_symbol(self, symbol: str) -> tuple[str, float | None, float | None]:
+        past_cagr = self.portfolio_api.calculate_cagr(symbol, self.past_start_date, self.past_end_date)
+        future_cagr = self.portfolio_api.calculate_cagr(symbol, self.future_start_date, self.future_end_date)
+        return symbol, past_cagr, future_cagr
+
+    @classmethod
+    def _save_combination(
+        cls,
+        x: float,
+        y: float,
+        z: float,
+    ):
+
+        stock_analyzer = cls(x, y, z)
+
+        stock_analyzer.save_data()
+
+    def _compute_past_future_returns(self) -> pd.DataFrame:
         """Compute past and future performance returns."""
         symbols = self.valid_symbols
         data = []
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=THREAD_PROC_MAX_WORKERS) as executor:
             future_to_symbol = {executor.submit(self._calculate_cagr_for_symbol, symbol): symbol for symbol in symbols}
             for future in concurrent.futures.as_completed(future_to_symbol):
                 symbol = future_to_symbol[future]
 
                 try:
                     result = future.result()
-                    stock_symbol, past_cagr, future_cagr = result
+                    _, past_cagr, future_cagr = result
                     history = self.data_api.price_history_by_dates(symbol, self.future_start_date, self.future_end_date)
 
                     past_price = self.data_api.price_at_date(symbol, self.past_start_date)
@@ -184,215 +233,25 @@ class StockPortfolioAnalyzer:
 
                     data.append(
                         {
-                            "stock": stock_symbol,
-                            self.COL_XY_PRICE: past_price,
-                            self.COL_X_PRICE: buy_price,
-                            self.COL_CURR_PRICE: current_price,
-                            self.COL_PAST_PERF: past_cagr,
-                            self.COL_FUTURE_PERF: future_cagr,
+                            "stock": symbol,
+                            **PerfDates.data_to_dict(
+                                curr_date=self.current_date,
+                                last_eval_date=self.last_evaluation_date,
+                                future_start_date=self.future_start_date,
+                                future_end_date=self.future_end_date,
+                                past_start_date=self.past_start_date,
+                                past_end_date=self.past_end_date,
+                            ),
+                            **PerfColumns.perf_columns_data_to_dict(
+                                col_xy_price=past_price,
+                                col_x_price=buy_price,
+                                col_curr_price=current_price,
+                                col_past_perf=past_cagr,
+                                col_future_perf=future_cagr,
+                            ),
                         }
                     )
                 except Exception as e:
                     print(f"Error calculating CAGR for {symbol}: {e}")
 
-        self.past_performance = pd.DataFrame(data)
-
-        return self.past_performance
-
-    def _calculate_cagr_for_symbol(self, symbol: str) -> tuple[str, float | None, float | None]:
-        past_cagr = self.portfolio_api.calculate_cagr(symbol, self.past_start_date, self.past_end_date)
-        future_cagr = self.portfolio_api.calculate_cagr(symbol, self.future_start_date, self.future_end_date)
-        return symbol, past_cagr, future_cagr
-
-    def _filter_stocks(
-        self, message_on_empty_data: str, past_perf_order_ascending: bool, future_perf_order_ascending: bool, N: int
-    ):
-        df = self.compute_past_future_returns() if self.past_performance.empty else self.past_performance
-        df = df.dropna()
-
-        # trunk-ignore(bandit/B101)
-        assert len(df) > 0, message_on_empty_data
-
-        selected_stocks = (
-            df.sort_values(
-                by=[self.COL_PAST_PERF, self.COL_FUTURE_PERF],
-                ascending=[past_perf_order_ascending, future_perf_order_ascending],
-            )
-            .head(N)
-            .reset_index(drop=True)
-        )
-
-        return StockPortfolio(
-            data=selected_stocks,
-            past_dates=self.past_performance_dates,
-            future_dates=self.future_performance_dates,
-            col_past_perf=self.COL_PAST_PERF,
-            col_future_perf=self.COL_FUTURE_PERF,
-            col_xy_price=self.COL_XY_PRICE,
-            col_x_price=self.COL_X_PRICE,
-            col_current_price=self.COL_CURR_PRICE,
-        )
-
-    ### Methods to get different types of stock portfolios
-
-    def get_loosers_portfolio(self, N: int) -> StockPortfolio:
-        """select N stocks that performed badly in y years and well in next x years."""
-
-        return self._filter_stocks(
-            message_on_empty_data="""Loosers' Stock is an empty dataframe. Something went wrong horribly.""",
-            past_perf_order_ascending=True,
-            future_perf_order_ascending=False,
-            N=N,
-        )
-
-    def get_winners_portfolio(self, N: int) -> StockPortfolio:
-        """select N stocks that performed well in y years and well in next x years."""
-
-        return self._filter_stocks(
-            message_on_empty_data="""Winners' Stock is an empty dataframe. Something went wrong horribly.""",
-            past_perf_order_ascending=False,
-            future_perf_order_ascending=False,
-            N=N,
-        )
-
-    def get_penny_portfolio(self, N: int) -> StockPortfolio:
-        """select N stocks filter by min and max price."""
-
-        return self._filter_stocks(
-            message_on_empty_data="""Penny Stock is an empty dataframe. Something went wrong horribly.""",
-            past_perf_order_ascending=False,
-            future_perf_order_ascending=False,
-            N=N,
-        )
-
-    @classmethod
-    def loosers_portfolio(cls, x, y, N=30) -> tuple["StockPortfolioAnalyzer", StockPortfolio]:
-        finder = cls(x, y)
-        port_folio = finder.get_loosers_portfolio(N)
-        return finder, port_folio
-
-    @classmethod
-    def winners_portfolio(cls, x, y, N=30) -> tuple["StockPortfolioAnalyzer", StockPortfolio]:
-        finder = cls(x, y)
-        port_folio = finder.get_winners_portfolio(N)
-        return finder, port_folio
-
-    @classmethod
-    def penny_portfolio(
-        cls, x, y, min_price: float, max_price: float, N=30
-    ) -> tuple["StockPortfolioAnalyzer", StockPortfolio]:
-        finder = cls(x, y, min_price=min_price, max_price=max_price)
-        port_folio = finder.get_penny_portfolio(N)
-        return finder, port_folio
-
-    @classmethod
-    def find_loosers_optimal_x_y_N(cls, x_values: list, y_values: list, N_values: list, z_values: list) -> pd.DataFrame:
-        """
-        Find optimal values for x, y, and N by trying different combinations.
-
-        Args:
-        x_values (list): List of possible values for x.
-        y_values (list): List of possible values for y.
-        N_values (list): List of possible values for N.
-
-        Returns:
-        pd.DataFrame: Dataframe with all combinations and their performance metrics.
-        """
-        results = []
-
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            future_to_combination = {
-                executor.submit(cls._evaluate_combination, x, y, z, N_values, cls): (x, y)
-                for x, y, z in itertools.product(x_values, y_values, z_values)
-            }
-
-            for future in concurrent.futures.as_completed(future_to_combination):
-                result_x_y = future.result()
-                results.extend(result_x_y)
-
-        return pd.DataFrame(
-            results,
-        ).sort_values("future_cagr", ascending=False)
-
-    @staticmethod
-    def _evaluate_combination(
-        x,
-        y,
-        z,
-        N_values,
-        cls,
-    ):
-
-        stock_finder = cls(x, y, z)
-        stock_finder.compute_past_future_returns()
-
-        local_results = []
-
-        for N in N_values:
-            try:
-                loosers_port: StockPortfolio = stock_finder.get_loosers_portfolio(N)
-                local_results.append(
-                    {
-                        "x": x,
-                        "y": y,
-                        "z": z,
-                        "N": N,
-                    }
-                    | loosers_port.analysis_dict
-                )
-            except Exception as e:
-                print(f"Failed for x={x}, y={y}, N={N}: {e}")
-
-        return local_results
-
-
-def save_loosers_portfolio():
-    def _save_loosers_portolio(x, y, N, portfolio_name, portfolio_analysis_name):
-        _, result = StockPortfolioAnalyzer.loosers_portfolio(x=x, y=y, N=N)
-        result.data.to_csv(portfolio_name)
-        result.analysis.to_csv(portfolio_analysis_name)
-
-        return result
-
-    PORTFOLIO_DIR.mkdir(parents=True, exist_ok=True)
-
-    PORTFOLIO_CURRENT_DIR = PORTFOLIO_DIR / "loosers_current"
-    PORTFOLIO_CURRENT_DIR.mkdir(parents=True, exist_ok=True)
-
-    PORTFOLIO_HISTORY_DIR = PORTFOLIO_DIR / "loosers_history"
-    PORTFOLIO_HISTORY_DIR.mkdir(parents=True, exist_ok=True)
-
-    _save_loosers_portolio(
-        0.02,
-        4,
-        30,
-        PORTFOLIO_CURRENT_DIR / "loosers_portfolio.csv",
-        PORTFOLIO_CURRENT_DIR / "loosers_portfolio_analysis.csv",
-    )
-
-    _save_loosers_portolio(
-        1,
-        4,
-        30,
-        PORTFOLIO_HISTORY_DIR / "loosers_portfolio_history.csv",
-        PORTFOLIO_HISTORY_DIR / "loosers_portfolio_analysis_history.csv",
-    )
-
-
-def save_optimal_xyzN_for_loosers_analysis():
-    x_values = list(np.arange(1, 6, 0.5))
-    y_values = list(np.arange(1, 6, 0.5))
-    z_values = list(np.arange(0, 6, 0.5))
-    N_values = list(np.arange(20, 50, 5))
-
-    df = StockPortfolioAnalyzer.find_loosers_optimal_x_y_N(x_values, y_values, N_values, z_values)
-
-    file_name = PORTFOLIO_DIR / "loosers_history_returns" / "loosers_optimal_xyzN.csv"
-
-    file_name.parent.mkdir(exist_ok=True, parents=True)
-
-    df.to_csv()
-
-
-if __name__ == "__main__":
-    save_loosers_portfolio()
+        return pd.DataFrame(data).dropna()
