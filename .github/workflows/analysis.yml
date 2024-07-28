@@ -3,7 +3,7 @@ name: Portfolio Analysis
 on:
   schedule:
     - cron: "30 18 * * 0"
-    - cron: "30 18 * * 3"
+    # - cron: "30 18 * * 3"
 
 jobs:
   portfolio-analysis:
@@ -34,12 +34,9 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run download script
+      - name: Run Analysis script
         run: python run_scripts/analysis.py
         working-directory: .
-
-      # - name: Run Notebooks
-      #   run: find . -name "*.ipynb" -print0 | xargs -0 -I {} jupyter nbconvert --execute --to notebook --inplace "{}"
 
       - name: Configure Git
         run: |

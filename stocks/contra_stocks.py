@@ -124,8 +124,16 @@ class StockPortfolio:
         z_values: list[float],
         past_perf_ascending: bool,
         future_perf_ascending: bool,
+        analysis_dir: str,
         num_stocks: int = 30,
+        parent_dir: str = "contra",
     ):
+        CONTRA_DIR = PORTFOLIO_DIR / parent_dir
+
+        CONTRA_DIR.mkdir(parents=True, exist_ok=True)
+
+        master_analysis = []
+
         with concurrent.futures.ProcessPoolExecutor(max_workers=THREAD_PROC_MAX_WORKERS) as executor:
             future_to_combination = {
                 executor.submit(
@@ -136,27 +144,22 @@ class StockPortfolio:
 
             for future in concurrent.futures.as_completed(future_to_combination):
                 x, y, z = future_to_combination[future]
-                port, port_analysis = future.result()
+                try:
+                    port, port_analysis = future.result()
 
-                ANALYSIS_DIR = PORTFOLIO_DIR / "contra" / f"{x}_{y}_{z}"
+                    ANALYSIS_DIR = CONTRA_DIR / analysis_dir / f"{x}_{y}_{z}"
 
-                ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+                    ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
 
-                port.to_csv(ANALYSIS_DIR / f"port_{x}_{y}_{z}.csv")
-                port_analysis.to_csv(ANALYSIS_DIR / f"port_analysis_{x}_{y}_{z}.csv")
+                    port.to_csv(ANALYSIS_DIR / f"port_{x}_{y}_{z}.csv")
+                    port_analysis.to_csv(ANALYSIS_DIR / f"port_analysis_{x}_{y}_{z}.csv")
 
+                    master_analysis.append(
+                        {"x": x, "y": y, "z": z, "num_stocks": num_stocks} | list(port_analysis.to_dict().values())[0]
+                    )
+                except Exception as exc:
+                    print(f"Error occurred for combination {x}_{y}_{z}: {exc}")
 
-if __name__ == "__main__":
-    x = 1.0
-    y = 1.0
-    z = 0.0
-    past_perf_ascending = True
-    future_perf_ascending = False
-    num_stocks = 30
-
-    portfolio, port_analysis = StockPortfolio.analyze_from_file(
-        x, y, z, past_perf_ascending, future_perf_ascending, num_stocks
-    )
-
-    print(portfolio)
-    print(port_analysis)
+        pd.DataFrame(master_analysis).to_csv(CONTRA_DIR / "master_analysis.csv").sort_keys(
+            by=PerfColumns.COL_FUTURE_CAGR
+        )
