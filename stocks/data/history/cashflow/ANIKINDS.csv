@@ -1,6 +1,6 @@
 ,2024-03-31,2023-03-31,2022-03-31,2021-03-31,2020-03-31
 Free Cash Flow,396455000.0,24958000.0,568191000.0,-364675000.0,
-Repurchase Of Capital Stock,-2040000.0,,,,
+Repurchase Of Capital Stock,-2040000.0,0.0,,,
 Repayment Of Debt,-229491000.0,-570601000.0,-625693000.0,-769000.0,
 Issuance Of Debt,,,0.0,322652000.0,46576000.0
 Capital Expenditure,-42801000.0,-311957000.0,-6623000.0,-3887000.0,
@@ -11,14 +11,14 @@ Changes In Cash,-11175000.0,-5399000.0,-91197000.0,96955000.0,
 Financing Cash Flow,-240470000.0,-606338000.0,-693689000.0,214433000.0,
 Net Other Financing Charges,,,-1000.0,,
 Interest Paid Cff,-8939000.0,-35737000.0,-67995000.0,-107450000.0,
-Net Common Stock Issuance,-2040000.0,,,,
-Common Stock Payments,-2040000.0,,,,
+Net Common Stock Issuance,-2040000.0,0.0,,,
+Common Stock Payments,-2040000.0,0.0,,,
 Net Issuance Payments Of Debt,-229491000.0,-570601000.0,-625693000.0,321883000.0,
 Net Long Term Debt Issuance,-229491000.0,-570601000.0,-625693000.0,321883000.0,
 Long Term Debt Payments,-229491000.0,-570601000.0,-625693000.0,-769000.0,
 Long Term Debt Issuance,,,0.0,322652000.0,46576000.0
 Investing Cash Flow,-209961000.0,264024000.0,27678000.0,243310000.0,
-Net Other Investing Changes,113588000.0,-1000.0,-1000.0,95070000.0,
+Net Other Investing Changes,113588000.0,73333000.0,-1000.0,95070000.0,
 Interest Received Cfi,30681000.0,36429000.0,37129000.0,48839000.0,
 Dividends Received Cfi,,,,,0.0
 Net Investment Purchase And Sale,,73334000.0,-16265000.0,-5312000.0,-72403000.0
@@ -40,7 +40,7 @@ Provisionand Write Offof Assets,-9122000.0,2337000.0,-104275000.0,-49088000.0,
 Deferred Tax,,,-3672000.0,0.0,
 Depreciation And Amortization,5769000.0,8057000.0,7855000.0,8199000.0,
 Depreciation,5769000.0,8057000.0,7855000.0,8199000.0,
-Gain Loss On Investment Securities,97000.0,-23000.0,-23000.0,-68000.0,
+Gain Loss On Investment Securities,97000.0,36000.0,-23000.0,-68000.0,
 Net Foreign Currency Exchange Gain Loss,,,0.0,0.0,-16268000.0
 Gain Loss On Sale Of PPE,-410000.0,952000.0,-34907000.0,-55951000.0,
 Net Income From Continuing Operations,43591000.0,57938000.0,157220000.0,62425000.0,

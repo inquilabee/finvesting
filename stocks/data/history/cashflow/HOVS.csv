@@ -13,7 +13,7 @@ Interest Paid Cff,0.0,-154000.0,-1373000.0,-2871000.0,
 Net Common Stock Issuance,,0.0,152000.0,0.0,0.0
 Common Stock Issuance,,0.0,152000.0,0.0,0.0
 Net Issuance Payments Of Debt,0.0,-6898000.0,-13478000.0,-11968000.0,
-Net Short Term Debt Issuance,0.0,,,,
+Net Short Term Debt Issuance,0.0,-6898000.0,,,
 Net Long Term Debt Issuance,,-6898000.0,-13478000.0,-11968000.0,-10480000.0
 Investing Cash Flow,36836000.0,24821000.0,11690000.0,9465000.0,
 Net Other Investing Changes,9637000.0,9248000.0,8030000.0,6532000.0,
@@ -22,7 +22,7 @@ Dividends Received Cfi,0.0,18697000.0,0.0,,
 Net Investment Purchase And Sale,,,,0.0,-103656000.0
 Purchase Of Investment,,,,0.0,-103656000.0
 Net PPE Purchase And Sale,25000.0,-6546000.0,0.0,-46000.0,
-Sale Of PPE,25000.0,,0.0,7000.0,0.0
+Sale Of PPE,25000.0,0.0,0.0,7000.0,
 Purchase Of PPE,0.0,-6546000.0,0.0,-53000.0,
 Operating Cash Flow,-34207000.0,21941000.0,-1115000.0,16707000.0,
 Taxes Refund Paid,-6642000.0,-6253000.0,-4679000.0,-6007000.0,
@@ -35,5 +35,5 @@ Depreciation And Amortization,8190000.0,7930000.0,8111000.0,8118000.0,
 Depreciation,8190000.0,7930000.0,8111000.0,8118000.0,
 Gain Loss On Investment Securities,,-18697000.0,,,
 Net Foreign Currency Exchange Gain Loss,-982000.0,-3991000.0,-1546000.0,1307000.0,
-Gain Loss On Sale Of PPE,-25000.0,-18697000.0,0.0,-7000.0,
+Gain Loss On Sale Of PPE,-25000.0,0.0,0.0,-7000.0,
 Net Income From Continuing Operations,36563000.0,54511000.0,30101000.0,31446000.0,

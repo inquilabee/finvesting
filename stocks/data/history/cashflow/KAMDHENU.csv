@@ -1,9 +1,9 @@
 ,2024-03-31,2023-03-31,2022-03-31,2021-03-31,2020-03-31
 Free Cash Flow,992156000.0,613996000.0,315985000.0,404630000.0,
-Repurchase Of Capital Stock,,-109581000.0,0.0,,
+Repurchase Of Capital Stock,0.0,-109581000.0,0.0,,
 Repayment Of Debt,0.0,-379698000.0,-162123000.0,,
 Issuance Of Debt,,,97088000.0,,
-Issuance Of Capital Stock,242688000.0,,0.0,3923000.0,7163000.0
+Issuance Of Capital Stock,242688000.0,0.0,0.0,3923000.0,
 Capital Expenditure,-29043000.0,-53581000.0,-117430000.0,-97365000.0,
 End Cash Position,401321000.0,119123000.0,137213000.0,23796000.0,
 Other Cash Adjustment Outside Changein Cash,,-100162000.0,1000.0,,
@@ -14,10 +14,10 @@ Net Other Financing Charges,,,,-1000.0,
 Interest Paid Cff,-5922000.0,-14710000.0,-89810000.0,-128015000.0,
 Cash Dividends Paid,-40403000.0,-27458000.0,-21360000.0,-13480000.0,
 Common Stock Dividend Paid,,,,,-31869000.0
-Net Preferred Stock Issuance,,-109581000.0,0.0,,
-Preferred Stock Payments,,-109581000.0,0.0,,
-Net Common Stock Issuance,242688000.0,,0.0,3923000.0,7163000.0
-Common Stock Issuance,242688000.0,,0.0,3923000.0,7163000.0
+Net Preferred Stock Issuance,0.0,-109581000.0,0.0,,
+Preferred Stock Payments,0.0,-109581000.0,0.0,,
+Net Common Stock Issuance,242688000.0,0.0,0.0,3923000.0,
+Common Stock Issuance,242688000.0,0.0,0.0,3923000.0,
 Net Issuance Payments Of Debt,0.0,-379698000.0,-65035000.0,-247757000.0,
 Net Short Term Debt Issuance,0.0,-369043000.0,-162123000.0,,
 Short Term Debt Payments,0.0,-369043000.0,-162123000.0,,

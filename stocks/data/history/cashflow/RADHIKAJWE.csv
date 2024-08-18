@@ -20,7 +20,7 @@ Net Long Term Debt Issuance,,,,-1996696.0,-252934667.0
 Long Term Debt Payments,,,,-1996696.0,-252934667.0
 Investing Cash Flow,-19599000.0,-20889000.0,942000.0,265788000.0,
 Net Other Investing Changes,-18525000.0,-15500000.0,1000.0,,
-Interest Received Cfi,350000.0,,,0.0,0.0
+Interest Received Cfi,350000.0,0.0,,0.0,0.0
 Net Investment Purchase And Sale,410000.0,14568000.0,15626000.0,264581000.0,
 Sale Of Investment,50410000.0,416413000.0,685626000.0,674581000.0,
 Purchase Of Investment,-50000000.0,-401845000.0,-670000000.0,-410000000.0,
@@ -39,8 +39,8 @@ Change In Inventory,-790537000.0,-635430000.0,-271888000.0,-151106000.0,
 Change In Receivables,-1243000.0,-4614000.0,-1360000.0,288000.0,
 Other Non Cash Items,24548000.0,9832000.0,5435000.0,3239000.0,
 Depreciation And Amortization,22415000.0,16745000.0,2763000.0,1131000.0,
-Amortization Cash Flow,,,30000.0,41000.0,
-Depreciation,22415000.0,16745000.0,2763000.0,1090000.0,
+Amortization Cash Flow,,28000.0,30000.0,41000.0,
+Depreciation,22415000.0,16745000.0,2733000.0,1090000.0,
 Gain Loss On Investment Securities,-410000.0,-15734000.0,-14644000.0,-28382000.0,
 Gain Loss On Sale Of PPE,,0.0,-853000.0,-408000.0,0.0
 Net Income From Continuing Operations,669313000.0,400684000.0,363736000.0,296018000.0,

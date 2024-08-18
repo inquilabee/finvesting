@@ -11,6 +11,7 @@ Financing Cash Flow,-80606000.0,-79086000.0,-73759000.0,-70060000.0,
 Net Other Financing Charges,,,,2000.0,
 Interest Paid Cff,-20118000.0,-19774000.0,-26383000.0,-32216000.0,
 Cash Dividends Paid,-90000.0,,,,
+Preferred Stock Dividend Paid,-90000.0,0.0,,,
 Net Common Stock Issuance,,,,,0.0
 Common Stock Payments,,,,,0.0
 Net Issuance Payments Of Debt,,,,0.0,-737854000.0
@@ -39,8 +40,8 @@ Change In Receivables,-108791000.0,65695000.0,-50803000.0,244505000.0,
 Other Non Cash Items,-108607000.0,-136041000.0,-105633000.0,-49582000.0,
 Provisionand Write Offof Assets,,,41854000.0,45246000.0,55778000.0
 Depreciation And Amortization,334313000.0,327957000.0,327478000.0,332307000.0,
-Amortization Cash Flow,,205578000.0,206760000.0,209168000.0,
-Depreciation,334313000.0,327957000.0,120718000.0,123139000.0,
+Amortization Cash Flow,206518000.0,205578000.0,206760000.0,209168000.0,
+Depreciation,127795000.0,122379000.0,120718000.0,123139000.0,
 Gain Loss On Investment Securities,-17384000.0,-18507000.0,-38490000.0,-75114000.0,
 Gain Loss On Sale Of PPE,-2781000.0,-2044000.0,-716000.0,-149000.0,
 Net Income From Continuing Operations,129005000.0,60625000.0,-75617000.0,-327573000.0,
