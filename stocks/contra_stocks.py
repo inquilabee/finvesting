@@ -160,6 +160,6 @@ class StockPortfolio:
                 except Exception as exc:
                     print(f"Error occurred for combination {x}_{y}_{z}: {exc}")
 
-        pd.DataFrame(master_analysis).to_csv(CONTRA_DIR / "master_analysis.csv").sort_keys(
-            by=PerfColumns.COL_FUTURE_CAGR
+        pd.DataFrame(master_analysis).sort_values(by=PerfColumns.COL_FUTURE_CAGR).to_csv(
+            CONTRA_DIR / "master_analysis.csv"
         )
