@@ -1,6 +1,6 @@
 ,2024-03-31,2023-03-31,2022-03-31,2021-03-31,2020-03-31
 Tax Effect Of Unusual Items,0.0,0.0,-17382.0,-13572.415754,
-Tax Rate For Calcs,0.4,0.107689,0.3,0.027554,
+Tax Rate For Calcs,0.3,0.107689,0.3,0.027554,
 Normalized EBITDA,7488000.0,11285000.0,10270490.0,-6833170.0,
 Total Unusual Items,0.0,0.0,-57940.0,-492570.0,
 Total Unusual Items Excluding Goodwill,0.0,0.0,-57940.0,-492570.0,
@@ -15,10 +15,10 @@ Interest Income,,1687790.0,1263220.0,1576770.0,1846124.0
 Normalized Income,1739000.0,4432000.0,1230188.0,-16033772.415754,
 Net Income From Continuing And Discontinued Operation,1739000.0,4432000.0,1189630.0,-16512770.0,
 Total Expenses,82657000.0,56528000.0,55762470.0,47122570.0,
-Diluted Average Shares,,15282759.0,11939000.0,11939000.0,11939000.0
-Basic Average Shares,,15282759.0,11939000.0,11939000.0,11939000.0
-Diluted EPS,,0.29,0.1,-1.38,-3.01
-Basic EPS,,0.29,0.1,-1.38,-3.01
+Diluted Average Shares,15809091.0,15282759.0,11939000.0,11939000.0,
+Basic Average Shares,15809091.0,15282759.0,11939000.0,11939000.0,
+Diluted EPS,0.11,0.29,0.1,-1.38,
+Basic EPS,0.11,0.29,0.1,-1.38,
 Diluted NI Availto Com Stockholders,1739000.0,4432000.0,1189630.0,-16512770.0,
 Net Income Common Stockholders,1739000.0,4432000.0,1189630.0,-16512770.0,
 Otherunder Preferred Stock Dividend,0.0,0.0,0.0,0.0,
