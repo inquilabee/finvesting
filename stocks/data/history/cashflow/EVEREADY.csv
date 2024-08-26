@@ -26,7 +26,6 @@ Sale Of Investment,30656000.0,44021000.0,46519000.0,,
 Purchase Of Investment,,,,-124533000.0,0.0
 Net Business Purchase And Sale,,,,0.0,60000000.0
 Sale Of Business,,,,0.0,60000000.0
-Purchase Of Business,,,,,0.0
 Net PPE Purchase And Sale,-336419000.0,-242086000.0,-114658000.0,-117541000.0,
 Sale Of PPE,6092000.0,2028000.0,4188000.0,0.0,
 Purchase Of PPE,-342511000.0,-244114000.0,-118846000.0,-117541000.0,
@@ -48,5 +47,4 @@ Depreciation,263098000.0,255663000.0,274739000.0,272316000.0,
 Gain Loss On Investment Securities,,-75000000.0,,,3000.0
 Net Foreign Currency Exchange Gain Loss,5037000.0,-253000.0,672000.0,606000.0,
 Gain Loss On Sale Of PPE,9609000.0,-7466000.0,-3939000.0,28440000.0,
-Gain Loss On Sale Of Business,,,,0.0,-60000000.0
 Net Income From Continuing Operations,806462000.0,346555000.0,484325000.0,-4824264000.0,
