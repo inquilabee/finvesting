@@ -23,6 +23,7 @@ Basic EPS,9.51,5.9,3.34,1.83,
 Diluted NI Availto Com Stockholders,116096000.0,70754000.0,40039000.0,21944240.0,
 Net Income Common Stockholders,116096000.0,70754000.0,40039000.0,21944240.0,
 Otherunder Preferred Stock Dividend,0.0,0.0,0.0,0.0,
+Net Income,116096000.0,70754000.0,40039000.0,21944240.0,
 Net Income Including Noncontrolling Interests,116096000.0,70754000.0,40039000.0,21988241.0,
 Net Income Discontinuous Operations,0.0,0.0,0.0,0.0,
 Net Income Continuous Operations,116096000.0,70754000.0,40039000.0,21988241.0,
@@ -32,6 +33,7 @@ Other Non Operating Income Expenses,10260000.0,2688000.0,918000.0,4124147.0,
 Special Income Charges,,-20000.0,-1014000.0,-11323462.0,-7991236.0
 Other Special Charges,,,,,7991236.0
 Write Off,,20000.0,1014000.0,11323462.0,247437.69
+Net Non Operating Interest Income Expense,-48671000.0,-27656000.0,-14373000.0,-18389028.0,
 Total Other Finance Cost,,5083000.0,3973000.0,4379637.0,4326260.09
 Interest Expense Non Operating,48671000.0,27656000.0,11318000.0,14412596.0,
 Interest Income Non Operating,,2687000.0,918000.0,403205.0,658607.0
