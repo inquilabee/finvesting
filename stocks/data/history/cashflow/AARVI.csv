@@ -1,8 +1,8 @@
 ,2024-03-31,2023-03-31,2022-03-31,2021-03-31,2020-03-31
-Free Cash Flow,23761000.0,55497000.0,-113588000.0,165586000.0,
+Free Cash Flow,23239000.0,55497000.0,-113588000.0,165586000.0,
 Repayment Of Debt,0.0,-30273000.0,-2509000.0,-52988000.0,
 Issuance Of Debt,63480000.0,0.0,29042000.0,,17453000.0
-Capital Expenditure,-7677000.0,-11835000.0,-9487000.0,-4066000.0,
+Capital Expenditure,-8199000.0,-11835000.0,-9487000.0,-4066000.0,
 End Cash Position,106845000.0,43855000.0,50704000.0,164495000.0,
 Other Cash Adjustment Outside Changein Cash,,,-2000.0,-2000.0,
 Beginning Cash Position,43855000.0,50704000.0,164495000.0,49176000.0,
@@ -14,11 +14,11 @@ Cash Dividends Paid,-29568000.0,-22176000.0,-29569000.0,-14784000.0,
 Common Stock Dividend Paid,,,,-14784000.0,-17823000.0
 Net Issuance Payments Of Debt,63480000.0,-30273000.0,26533000.0,-52988000.0,
 Net Short Term Debt Issuance,63480000.0,-30273000.0,29042000.0,-52150000.0,
-Short Term Debt Payments,,-30273000.0,,-52150000.0,0.0
+Short Term Debt Payments,0.0,-30273000.0,,-52150000.0,0.0
 Short Term Debt Issuance,63480000.0,0.0,29042000.0,,17453000.0
 Net Long Term Debt Issuance,0.0,0.0,-2509000.0,-838000.0,
 Long Term Debt Payments,0.0,0.0,-2509000.0,-838000.0,
-Long Term Debt Issuance,,4858000.0,0.0,,
+Long Term Debt Issuance,0.0,0.0,0.0,,
 Investing Cash Flow,11481000.0,-3738000.0,1150000.0,20383000.0,
 Net Other Investing Changes,-522000.0,,,-56130000.0,-99000.0
 Interest Received Cfi,19680000.0,8097000.0,10637000.0,24449000.0,
@@ -27,8 +27,8 @@ Sale Of Investment,0.0,0.0,0.0,,
 Purchase Of Investment,0.0,0.0,0.0,-65926000.0,
 Net Business Purchase And Sale,0.0,0.0,0.0,,
 Purchase Of Business,0.0,0.0,0.0,,
-Net Intangibles Purchase And Sale,0.0,0.0,0.0,-591000.0,
-Purchase Of Intangibles,0.0,0.0,0.0,-591000.0,
+Net Intangibles Purchase And Sale,-522000.0,0.0,0.0,-591000.0,
+Purchase Of Intangibles,-522000.0,0.0,0.0,-591000.0,
 Net PPE Purchase And Sale,-7677000.0,-11835000.0,-9487000.0,-4066000.0,
 Sale Of PPE,0.0,0.0,0.0,,737000.0
 Purchase Of PPE,-7677000.0,-11835000.0,-9487000.0,-4066000.0,
