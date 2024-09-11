@@ -2,6 +2,7 @@
 Free Cash Flow,265129000.0,-58802000.0,-116945512.97,52765001.0,
 Repayment Of Debt,-26147000.0,-1042000.0,-51048027.01,-41115665.0,
 Issuance Of Debt,0.0,0.0,28472671.0,50052156.0,
+Issuance Of Capital Stock,,0.0,0.0,0.0,0.0
 Capital Expenditure,-59033000.0,-72000.0,-15721827.0,-2590404.0,
 End Cash Position,923000.0,625000.0,66617.0,12561.0,
 Other Cash Adjustment Outside Changein Cash,,,,,-0.18
@@ -9,6 +10,7 @@ Beginning Cash Position,625000.0,67000.0,12561.0,1148146.0,
 Changes In Cash,298000.0,558000.0,54056.0,-1135585.0,
 Financing Cash Flow,-265081000.0,59154000.0,116556243.39,-54380355.0,
 Interest Paid Cff,-9552000.0,-17337000.0,,,
+Net Common Stock Issuance,,0.0,0.0,0.0,0.0
 Common Stock Issuance,,0.0,0.0,0.0,0.0
 Net Issuance Payments Of Debt,-254329000.0,77391000.0,116556243.39,-54380355.0,
 Net Short Term Debt Issuance,-228182000.0,78433000.0,139131599.4,-63316846.0,
