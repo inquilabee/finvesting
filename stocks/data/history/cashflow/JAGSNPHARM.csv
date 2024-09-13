@@ -10,10 +10,12 @@ Effect Of Exchange Rate Changes,,,0.0,0.0,
 Changes In Cash,17070000.0,-114730000.0,-364170000.0,191299000.0,
 Financing Cash Flow,-89110000.0,-4570000.0,-175520000.0,-68282000.0,
 Net Other Financing Charges,,-3221000.0,,,
+Interest Paid Cff,-8140000.0,-4130000.0,-2850000.0,-5135000.0,
 Cash Dividends Paid,-130990000.0,,-104790000.0,-26200000.0,-13100000.0
 Common Stock Dividend Paid,,,,,-13100000.0
 Net Common Stock Issuance,56350000.0,0.0,-15395000.0,-36947000.0,
 Common Stock Issuance,56350000.0,0.0,,,
+Net Issuance Payments Of Debt,,0.0,-67880000.0,,8794000.0
 Net Short Term Debt Issuance,,0.0,-67879000.0,,8794000.0
 Short Term Debt Payments,,0.0,-67879000.0,,0.0
 Short Term Debt Issuance,,,,,8794000.0
@@ -36,6 +38,7 @@ Change In Other Current Liabilities,31870000.0,23600000.0,-11140000.0,31195000.0
 Change In Other Current Assets,-33490000.0,62630000.0,-56430000.0,-97763000.0,
 Change In Payable,-89820000.0,-19620000.0,-10750000.0,-29516000.0,
 Change In Inventory,53100000.0,86860000.0,-180000.0,-3995000.0,
+Change In Receivables,91540000.0,-55560000.0,-29550000.0,207374000.0,
 Other Non Cash Items,-77780000.0,-2360000.0,-12600000.0,-21977000.0,
 Stock Based Compensation,133100000.0,87650000.0,0.0,,
 Provisionand Write Offof Assets,7070000.0,200000.0,-4450000.0,,
