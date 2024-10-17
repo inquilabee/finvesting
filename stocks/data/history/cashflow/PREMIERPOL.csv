@@ -13,19 +13,19 @@ Interest Paid Cff,-16200000.0,-21100000.0,-15900000.0,-17900000.0,
 Cash Dividends Paid,-10400000.0,-10500000.0,-10500000.0,,-12627753.0
 Common Stock Dividend Paid,,,,,-12627753.0
 Net Issuance Payments Of Debt,-72000000.0,47100000.0,10600000.0,-42400000.0,
-Net Short Term Debt Issuance,,1600000.0,-16600000.0,-55200000.0,-5199383.0
-Short Term Debt Payments,,-122800000.0,-123800000.0,-62500000.0,-51766735.0
-Short Term Debt Issuance,,124400000.0,107200000.0,7300000.0,46567352.0
-Net Long Term Debt Issuance,-72000000.0,47100000.0,27200000.0,12800000.0,
-Long Term Debt Payments,-200000000.0,-167600000.0,-22400000.0,-16200000.0,
-Long Term Debt Issuance,128000000.0,214700000.0,49600000.0,29000000.0,
+Net Short Term Debt Issuance,-15100000.0,1600000.0,-16600000.0,-55200000.0,
+Short Term Debt Payments,-143100000.0,-122800000.0,-123800000.0,-62500000.0,
+Short Term Debt Issuance,128000000.0,124400000.0,107200000.0,7300000.0,
+Net Long Term Debt Issuance,-56900000.0,45500000.0,27200000.0,12800000.0,
+Long Term Debt Payments,-56900000.0,-44800000.0,-22400000.0,-16200000.0,
+Long Term Debt Issuance,0.0,90300000.0,49600000.0,29000000.0,
 Investing Cash Flow,-56300000.0,-171000000.0,-71100000.0,-37000000.0,
 Net Other Investing Changes,-34300000.0,-100000.0,-12800000.0,-21800000.0,
 Interest Received Cfi,3900000.0,2900000.0,3200000.0,3200000.0,
 Dividends Received Cfi,,0.0,0.0,0.0,
-Net Investment Purchase And Sale,,0.0,-12800000.0,-21800000.0,-17637512.0
-Sale Of Investment,,0.0,0.0,3200000.0,
-Purchase Of Investment,,0.0,-12800000.0,-25000000.0,-17637512.0
+Net Investment Purchase And Sale,-34300000.0,-100000.0,-12800000.0,-21800000.0,
+Sale Of Investment,600000.0,3200000.0,0.0,3200000.0,
+Purchase Of Investment,-34900000.0,-3300000.0,-12800000.0,-25000000.0,
 Net Investment Properties Purchase And Sale,,0.0,0.0,0.0,
 Sale Of Investment Properties,,0.0,0.0,,
 Purchase Of Investment Properties,,0.0,0.0,0.0,
@@ -49,12 +49,13 @@ Change In Other Current Liabilities,,0.0,0.0,0.0,0.0
 Change In Other Current Assets,2600000.0,2400000.0,-14500000.0,-26700000.0,
 Change In Payable,-76400000.0,2600000.0,127100000.0,-33100000.0,
 Change In Inventory,89800000.0,42500000.0,-174900000.0,51700000.0,
-Change In Receivables,-29100000.0,-94700000.0,-67700000.0,15300000.0,
-Other Non Cash Items,11400000.0,17500000.0,12700000.0,14300000.0,
+Change In Receivables,-26500000.0,-92300000.0,-67700000.0,15300000.0,
+Other Non Cash Items,11600000.0,17500000.0,12700000.0,14300000.0,
 Stock Based Compensation,,0.0,0.0,0.0,0.0
 Provisionand Write Offof Assets,,0.0,0.0,0.0,0.0
 Depreciation And Amortization,51600000.0,49300000.0,41900000.0,40400000.0,
+Amortization Cash Flow,0.0,0.0,,,
 Depreciation,51600000.0,49300000.0,41900000.0,40400000.0,
 Net Foreign Currency Exchange Gain Loss,,0.0,0.0,0.0,0.0
-Gain Loss On Sale Of PPE,,0.0,-100000.0,-200000.0,30632.0
+Gain Loss On Sale Of PPE,-200000.0,0.0,-100000.0,-200000.0,
 Net Income From Continuing Operations,272700000.0,152000000.0,138800000.0,109500000.0,
