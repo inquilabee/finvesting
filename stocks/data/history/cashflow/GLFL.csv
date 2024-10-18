@@ -28,7 +28,8 @@ Change In Payable,-61000.0,51000.0,-33000.0,-373000.0,
 Other Non Cash Items,-4779000.0,-2878000.0,-2926000.0,-212000.0,
 Provisionand Write Offof Assets,,,,0.0,-563000.0
 Depreciation And Amortization,11000.0,119000.0,235000.0,247000.0,
-Depreciation,11000.0,119000.0,235000.0,247000.0,
+Amortization Cash Flow,5000.0,0.0,,,
+Depreciation,6000.0,119000.0,235000.0,247000.0,
 Gain Loss On Investment Securities,-22000.0,,,-37000.0,-823000.0
 Gain Loss On Sale Of PPE,,,51000.0,0.0,49000.0
 Net Income From Continuing Operations,868000.0,1853000.0,-822000.0,-3491000.0,
