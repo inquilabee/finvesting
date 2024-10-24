@@ -3,7 +3,7 @@ Free Cash Flow,-842400000.0,-696500000.0,-330600000.0,-8035700000.0,
 Repurchase Of Capital Stock,,,0.0,-1694300000.0,0.0
 Repayment Of Debt,-502400000.0,0.0,,0.0,-2400000.0
 Issuance Of Debt,2383700000.0,40100000.0,,,
-Issuance Of Capital Stock,13600000.0,820100000.0,0.0,340300000.0,
+Issuance Of Capital Stock,18600000.0,820100000.0,0.0,340300000.0,
 Capital Expenditure,-1044500000.0,-195900000.0,-88000000.0,-179000000.0,
 End Cash Position,72600000.0,202600000.0,341100000.0,5300000.0,
 Other Cash Adjustment Outside Changein Cash,106600000.0,16900000.0,36000000.0,,
@@ -15,9 +15,9 @@ Net Other Financing Charges,5000000.0,,,,
 Interest Paid Cff,-218300000.0,-9900000.0,-3000000.0,-10200000.0,
 Cash Dividends Paid,,,,-27812600000.0,-120300000.0
 Common Stock Dividend Paid,,,,,-120300000.0
-Net Common Stock Issuance,13600000.0,820100000.0,0.0,-1354000000.0,
+Net Common Stock Issuance,18600000.0,820100000.0,0.0,-1354000000.0,
 Common Stock Payments,,,0.0,-1694300000.0,0.0
-Common Stock Issuance,13600000.0,820100000.0,0.0,340300000.0,
+Common Stock Issuance,18600000.0,820100000.0,0.0,340300000.0,
 Net Issuance Payments Of Debt,1881300000.0,40100000.0,-1500000.0,3100000.0,
 Net Short Term Debt Issuance,,,,3100000.0,-28700000.0
 Net Long Term Debt Issuance,1881300000.0,40100000.0,-1500000.0,3100000.0,
@@ -52,8 +52,8 @@ Other Non Cash Items,149700000.0,4600000.0,-13900000.0,-241800000.0,
 Stock Based Compensation,116400000.0,26100000.0,8600000.0,147100000.0,
 Provisionand Write Offof Assets,29500000.0,12900000.0,4200000.0,37500000.0,
 Depreciation And Amortization,725200000.0,217900000.0,27800000.0,232600000.0,
-Amortization Cash Flow,,,7400000.0,,
-Depreciation,725200000.0,217900000.0,20400000.0,232600000.0,
+Amortization Cash Flow,116400000.0,,7400000.0,,
+Depreciation,608800000.0,217900000.0,20400000.0,232600000.0,
 Pension And Employee Benefit Expense,,0.0,-2200000.0,0.0,
 Gain Loss On Investment Securities,-32400000.0,-2000000.0,-33400000.0,-161500000.0,
 Net Foreign Currency Exchange Gain Loss,-800000.0,2000000.0,0.0,0.0,
