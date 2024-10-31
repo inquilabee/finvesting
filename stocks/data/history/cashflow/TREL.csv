@@ -1,5 +1,5 @@
 ,2024-03-31,2023-03-31,2022-03-31
-Free Cash Flow,750900000.0,1184300000.0,100000.0
+Free Cash Flow,750900000.0,329200000.0,100000.0
 Repurchase Of Capital Stock,0.0,-5400000.0,0.0
 Repayment Of Debt,-494400000.0,-909300000.0,0.0
 Issuance Of Debt,0.0,1115600000.0,0.0
@@ -25,16 +25,16 @@ Interest Received Cfi,-1900000.0,22800000.0,0.0
 Net Investment Purchase And Sale,-4049800000.0,834900000.0,0.0
 Sale Of Investment,1816600000.0,1268800000.0,0.0
 Purchase Of Investment,-5866400000.0,-433900000.0,0.0
-Net Investment Properties Purchase And Sale,-2575200000.0,-855100000.0,
-Purchase Of Investment Properties,-2575200000.0,-855100000.0,
-Net Business Purchase And Sale,5150200000.0,-881900000.0,0.0
-Sale Of Business,5150200000.0,0.0,
+Net Investment Properties Purchase And Sale,-2575200000.0,0.0,
+Purchase Of Investment Properties,-2575200000.0,0.0,
+Net Business Purchase And Sale,3756100000.0,-881900000.0,0.0
+Sale Of Business,3756100000.0,0.0,
 Purchase Of Business,,-881900000.0,
 Net Intangibles Purchase And Sale,-100000.0,0.0,
 Purchase Of Intangibles,-100000.0,0.0,
-Net PPE Purchase And Sale,13700000.0,105000000.0,0.0
-Sale Of PPE,14100000.0,105000000.0,0.0
-Purchase Of PPE,-400000.0,0.0,0.0
+Net PPE Purchase And Sale,1407800000.0,-750100000.0,0.0
+Sale Of PPE,1408200000.0,105000000.0,0.0
+Purchase Of PPE,-400000.0,-855100000.0,0.0
 Operating Cash Flow,751400000.0,1184300000.0,100000.0
 Taxes Refund Paid,-222100000.0,-102600000.0,0.0
 Change In Working Capital,484600000.0,-441200000.0,100000.0
