@@ -1,6 +1,6 @@
 ,2024-03-31,2023-03-31,2022-03-31,2021-03-31,2020-03-31
 Free Cash Flow,-1026706000.0,165892000.0,44709000.0,-120739000.0,
-Repurchase Of Capital Stock,,,-4944000.0,0.0,
+Repurchase Of Capital Stock,,0.0,-4944000.0,0.0,
 Repayment Of Debt,,-3434000.0,-13291000.0,,
 Issuance Of Debt,,,,22700000.0,0.0
 Issuance Of Capital Stock,1621000.0,1624000.0,552000.0,2476000.0,
@@ -11,7 +11,7 @@ Changes In Cash,-85417000.0,124697000.0,46862000.0,-42569000.0,
 Financing Cash Flow,923612000.0,-24078000.0,-20069000.0,23581000.0,
 Interest Paid Cff,-23981000.0,-983000.0,-1693000.0,-1595000.0,
 Net Common Stock Issuance,1621000.0,1624000.0,-4392000.0,2476000.0,
-Common Stock Payments,,,-4944000.0,0.0,
+Common Stock Payments,,0.0,-4944000.0,0.0,
 Common Stock Issuance,1621000.0,1624000.0,552000.0,2476000.0,
 Net Issuance Payments Of Debt,1022785000.0,-3434000.0,-13291000.0,22700000.0,
 Net Short Term Debt Issuance,,-3434000.0,-13291000.0,22700000.0,0.0
