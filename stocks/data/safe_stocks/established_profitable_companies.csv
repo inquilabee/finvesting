@@ -1,3 +1,5 @@
 ,symbol,name_of_company,day_high,market_cap,profit_margins,operating_margins,gross_margins,return_on_assets,return_on_equity,debt_to_equity,ex_dividend_date,last_dividend_value
-2,CDSL,Central Depository Services (India) Limited,1556.45,31805.620224,0.46629003,0.62514,1.0,0.2394,0.37493,0.066,1721088000.0,9.5
-365,AJANTPHARM,Ajanta Pharma Limited,3099.8,37455.773696,0.19484,0.25486,0.74557996,0.15313,0.24445,0.892,1730851200.0,28.0
+141,IEX,Indian Energy Exchange Limited,173.99,15398.0731392,0.64179003,0.85198,0.99815005,0.19233,0.41028,0.784,1717113600.0,1.5
+326,CGPOWER,CG Power and Industrial Solutions Limited,717.4,107735.61344,0.16379999,0.11071,0.30196,0.11479,0.30103,0.819,1707091200.0,1.3
+472,VOLTAMP,Voltamp Transformers Limited,11200.65,10719.0452224,0.19714001,0.18055001,0.296,0.14714,0.26577,0.198,1721606400.0,90.0
+771,IRCTC,Indian Railway Catering And Tourism Corporation Limited,831.7,66327.9960064,0.26908,0.33806,0.38107,0.14653,0.37674,1.202,1724371200.0,4.0
