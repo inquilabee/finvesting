@@ -29,7 +29,7 @@ Purchase Of Investment,,,,-3223000.0,0.0
 Net Intangibles Purchase And Sale,,0.0,0.0,-112000.0,0.0
 Purchase Of Intangibles,,0.0,0.0,-112000.0,0.0
 Net PPE Purchase And Sale,-12724000.0,-832000.0,-101000.0,-390000.0,
-Sale Of PPE,,,0.0,752000.0,4374000.0
+Sale Of PPE,,0.0,0.0,752000.0,4374000.0
 Purchase Of PPE,-12724000.0,-832000.0,-101000.0,-1142000.0,
 Capital Expenditure Reported,,,,,-11639913.0
 Operating Cash Flow,10374000.0,6459000.0,5171000.0,-22930000.0,
@@ -44,8 +44,8 @@ Other Non Cash Items,306000.0,-640000.0,-1791000.0,-765000.0,
 Stock Based Compensation,1419000.0,,,,
 Provisionand Write Offof Assets,,16592000.0,1770000.0,23677000.0,0.0
 Depreciation And Amortization,8808000.0,5294000.0,8147000.0,8263000.0,
-Amortization Cash Flow,,4530000.0,6611000.0,6136000.0,
-Depreciation,8808000.0,5294000.0,1536000.0,2127000.0,
+Amortization Cash Flow,5685000.0,4530000.0,6611000.0,6136000.0,
+Depreciation,3123000.0,764000.0,1536000.0,2127000.0,
 Gain Loss On Investment Securities,,,,-15000.0,-341000.0
 Net Foreign Currency Exchange Gain Loss,,,,,2543261.0
 Gain Loss On Sale Of PPE,,0.0,0.0,140000.0,1385000.0
