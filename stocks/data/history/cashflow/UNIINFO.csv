@@ -1,1 +1,50 @@
-""
+,2024-03-31,2023-03-31,2022-03-31,2021-03-31,2020-03-31
+Free Cash Flow,23833000.0,4041000.0,-16423000.0,18887000.0,
+Repayment Of Debt,-52750000.0,-242000.0,-10903000.0,-230000.0,
+Issuance Of Debt,,29837000.0,,10856000.0,
+Issuance Of Capital Stock,,,,,0.0
+Capital Expenditure,-6211000.0,-11328000.0,-9926000.0,-7517000.0,
+End Cash Position,195000.0,32223000.0,1281000.0,29699000.0,
+Other Cash Adjustment Outside Changein Cash,1000.0,-1000.0,1000.0,,-1.0
+Beginning Cash Position,32223000.0,1281000.0,29699000.0,3259000.0,
+Effect Of Exchange Rate Changes,-272000.0,0.0,,,
+Changes In Cash,-31757000.0,30943000.0,-28419000.0,26440000.0,
+Financing Cash Flow,-58164000.0,25536000.0,-17074000.0,6656000.0,
+Net Other Financing Charges,-1000.0,,-714000.0,-1000.0,1.0
+Interest Paid Cff,-4550000.0,-3286000.0,-5668000.0,-3589000.0,
+Net Common Stock Issuance,,,,,0.0
+Common Stock Issuance,,,,,0.0
+Net Issuance Payments Of Debt,-52750000.0,29595000.0,-10903000.0,10626000.0,
+Net Short Term Debt Issuance,-52750000.0,29837000.0,-10652000.0,10856000.0,
+Short Term Debt Payments,-52750000.0,,-10652000.0,,
+Short Term Debt Issuance,,29837000.0,,10856000.0,
+Net Long Term Debt Issuance,0.0,-242000.0,-251000.0,-230000.0,
+Long Term Debt Payments,0.0,-242000.0,-251000.0,-230000.0,
+Investing Cash Flow,-3637000.0,-9962000.0,-4848000.0,-6620000.0,
+Net Other Investing Changes,,,,-1.0,74954329.0
+Interest Received Cfi,2567000.0,1366000.0,8000.0,673000.0,
+Net Investment Purchase And Sale,,,0.0,224000.0,74954329.0
+Sale Of Investment,,,0.0,47724000.0,74954329.0
+Purchase Of Investment,,,0.0,-47500000.0,0.0
+Net PPE Purchase And Sale,-6204000.0,-11328000.0,-4856000.0,-7517000.0,
+Sale Of PPE,7000.0,0.0,5070000.0,0.0,
+Purchase Of PPE,-6211000.0,-11328000.0,-9926000.0,-7517000.0,
+Capital Expenditure Reported,,,,-7517000.0,-11954000.0
+Operating Cash Flow,30044000.0,15369000.0,-6497000.0,26404000.0,
+Taxes Refund Paid,11769000.0,2434000.0,-11392000.0,1469000.0,
+Change In Working Capital,-3597000.0,-11156000.0,31934000.0,51046000.0,
+Change In Other Current Liabilities,-226000.0,615000.0,0.0,11542802.0,
+Change In Other Current Assets,-2617000.0,5846000.0,1735000.0,-1743000.0,
+Change In Payable,-7747000.0,2227000.0,-24944000.0,10283000.0,
+Change In Inventory,-40241000.0,-24240000.0,79215000.0,22413000.0,
+Change In Receivables,47234000.0,4396000.0,-26921000.0,16938000.0,
+Other Non Cash Items,3334000.0,2521000.0,5546000.0,5597000.0,
+Provisionand Write Offof Assets,,,,0.0,586685.0
+Depreciation And Amortization,9845000.0,9760000.0,9809000.0,11620000.0,
+Amortization Cash Flow,,,407000.0,287000.0,
+Depreciation,9845000.0,9760000.0,9809000.0,11333000.0,
+Pension And Employee Benefit Expense,2739000.0,2608000.0,,,
+Gain Loss On Investment Securities,821000.0,,,-224000.0,
+Net Foreign Currency Exchange Gain Loss,-305000.0,0.0,-1255000.0,0.0,
+Gain Loss On Sale Of PPE,821000.0,0.0,1599000.0,64000.0,
+Net Income From Continuing Operations,5047000.0,7662000.0,-42520000.0,-44343000.0,
