@@ -1,6 +1,3 @@
 ,symbol,name_of_company,day_high,quick_ratio,current_ratio,total_cash,total_cash_per_share,total_debt,free_cashflow,operating_cashflow,recommendation_key
-410,LAOPALA,La Opala RG Limited,229.0,4.112,4.734,5331672064.0,48.086,74644000.0,1435126528.0,995009024.0,none
-595,SRHHYPOLTD,Sree Rayalaseema Hi-Strength Hypo Limited,594.0,7.499,8.649,3712689920.0,216.331,135072000.0,598244608.0,884134016.0,none
-76,RATEGAIN,Rategain Travel Technologies Limited,609.5,5.321,5.497,10240350208.0,86.894,171420000.0,1218038784.0,1229580032.0,strong_buy
-491,OFSS,Oracle Financial Services Software Limited,8962.0,5.483,6.105,53631000576.0,617.732,244000000.0,22489114624.0,24570689536.0,none
-290,PGHH,Procter & Gamble Hygiene and Health Care Limited,13849.6,1.052,1.411,7845799936.0,241.692,25700000.0,8309049856.0,5945299968.0,buy
+282,GILLETTE,Gillette India Limited,8787.0,1.111,1.716,5582199808.0,171.317,500000.0,4903575040.0,6194500096.0,none
+205,OFSS,Oracle Financial Services Software Limited,8888.0,5.483,6.105,53631000576.0,617.732,244000000.0,22489114624.0,24570689536.0,none
