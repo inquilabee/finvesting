@@ -1,12 +1,12 @@
 ,Portfolio Analysis
-past_start_date,2014-05-07
-past_end_date,2017-05-06
-future_start_date,2017-05-06
-future_end_date,2020-05-05
-past_cagr,-9.47463670730201
-future_cagr,-9.69357886877653
-absolute_return_past,-25.450207346617148
-absolute_return_future,-26.31170094069643
-sum_past_xy_price,4587.715455248952
-sum_past_x_price,3420.1323594152927
-sum_current_price,2520.237361229956
+past_start_date,2014-05-14
+past_end_date,2017-05-13
+future_start_date,2017-05-13
+future_end_date,2020-05-12
+past_cagr,-13.413486246039197
+future_cagr,-18.566365007759977
+absolute_return_past,-34.17400004538801
+absolute_return_future,-45.93699154630738
+sum_past_xy_price,3648.6183425933123
+sum_past_x_price,2401.7395085394382
+sum_current_price,1298.452633537352
